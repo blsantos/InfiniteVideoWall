@@ -1,0 +1,143 @@
+Sistema “Muro Infinito de Vídeos” – reparacoeshistoricas.org
+
+📘 Objetivo Geral
+
+Criar uma plataforma web interativa vinculada a um livro, onde cada capítulo direciona, via QR Code ou NFC, para um mural digital com vídeos verticais de até 1 minuto relatando experiências reais de racismo.
+
+⸻
+
+🌐 Frontend (Experiência do Usuário)
+
+1. Página de Acesso
+	•	Cada capítulo do livro terá um QR Code único.
+	•	Redireciona o usuário para uma URL específica no site.
+
+2. Muro Infinito de Vídeos
+	•	Interface tipo “scroll multidirecional infinito”.
+	•	Navegação por mouse/teclado (desktop) e toque/gestos (mobile).
+	•	Vídeos exibidos como blocos verticais.
+	•	Ao clicar: vídeo em tela cheia com retorno ao ponto de origem após visualização.
+
+3. Botão “Compartilhar seu relato”
+	•	Sempre visível.
+	•	Leva ao formulário de envio de vídeo.
+
+⸻
+
+📹 Sistema de Upload e Registro de Vídeo
+
+1. Regras
+	•	Duração máxima: 60 segundos.
+	•	Formato vertical (9:16).
+	•	Relatos em primeira pessoa, sem edição.
+
+2. Formulário de Registro
+
+Dados obrigatórios (para fins estatísticos):
+	•	Idade (faixa etária)
+	•	Cidade/Estado
+	•	País
+	•	Tom de pele (autoidentificação): muito claro, claro, moreno claro, moreno médio, moreno escuro, negro
+	•	Gênero (M/F/Outro/Prefiro não informar)
+	•	Tipo de racismo:
+	•	Institucional
+	•	Religioso
+	•	Linguístico
+	•	Estrutural
+	•	Escolar
+	•	No mercado de trabalho
+	•	Outro (campo livre)
+
+Dados opcionais:
+	•	Nome ou pseudônimo
+	•	Permissão para exibição pública
+	•	Consentimento para contato futuro
+
+3. Upload
+	•	Integração com API do YouTube (modo “não listado”)
+	•	Link do vídeo armazenado e posicionado no mural
+
+⸻
+
+🧠 Backend (Administração)
+
+1. Gerenciamento de Vídeos
+	•	Painel com:
+	•	Filtros por data/local/tipo de racismo
+	•	Aprovação manual
+	•	Edição e exclusão
+
+2. QR Codes
+	•	Cada capítulo do livro terá um QR Code único (ex: /capitulo/1)
+	•	Geração automática de QR Codes para cada capítulo
+
+3. Estatísticas
+	•	Painel com:
+	•	Mapa de calor por localidade
+	•	Gráficos por idade, cor da pele, tipo de racismo, gênero
+	•	Exportação CSV e integração com Google Sheets/Notion
+
+4. Contas Administrativas
+	•	Acesso seguro com autenticação
+	•	Níveis de permissão para equipe
+
+⸻
+
+🔐 Segurança e Moderação
+	•	Verificação manual dos vídeos
+	•	Captcha/reCAPTCHA
+	•	Aceite de termos de uso
+	•	Política de privacidade obrigatória
+
+⸻
+
+🧩 Tecnologias Sugeridas
+
+Frontend
+	•	React.js
+	•	TailwindCSS
+	•	Three.js (para navegação multidirecional)
+
+Backend
+	•	Node.js + Express.js
+	•	MongoDB Atlas / Firebase / SQLite
+	•	YouTube API
+	•	QR Code API (npm qrcode)
+
+Hospedagem
+	•	Hostinger (VPS recomendado para Node.js)
+	•	Alternativas: Netlify (frontend) + backend externo
+
+⸻
+
+📂 Estrutura de Pastas (sugestão)
+
+/public
+  /videos
+  /qrcodes
+/src
+  /components
+  /pages
+  /services
+  /admin
+  /api
+.env
+firebase.js ou db.js
+
+
+⸻
+
+🔄 Integrações Futuras
+	•	Versão física do mural em exposições
+	•	Plugin WordPress para embutir o mural
+	•	Compartilhamento direto nas redes sociais
+
+⸻
+
+📌 Próximos passos sugeridos
+	•	Criar wireframes
+	•	Desenvolver o formulário
+	•	Criar sistema inicial de mural (com 10 vídeos fictícios)
+	•	Testar QR Codes com rotas reais
+	•	Configurar backend leve (ex: Firebase)
+	•	Ativar canal no YouTube com API habilitada
