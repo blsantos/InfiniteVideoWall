@@ -18,7 +18,7 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
             onClick={() => onVideoSelect(video)}
           >
             {/* Container da imagem/video - tamanho dobrado */}
-            <div className="aspect-[9/16] w-80 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-80 bg-gray-100 rounded-lg overflow-hidden relative shadow-md">
               {/* Imagem de placeholder ou thumbnail */}
               <img
                 src={video.thumbnailUrl}
@@ -29,8 +29,8 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
               
               {/* Overlay com botão de play */}
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
-                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <Play className="w-6 h-6 text-black ml-0.5" />
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
                 </div>
               </div>
               
@@ -38,7 +38,7 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                 <div className="text-white text-sm">
                   <div className="font-medium truncate">{video.submitterLocation}</div>
-                  <div className="text-gray-300 text-xs truncate">{video.racismType}</div>
+                  <div className="text-gray-200 text-xs truncate">{video.racismType}</div>
                 </div>
               </div>
             </div>
@@ -52,7 +52,7 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
             className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-80 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-80 bg-gray-100 rounded-lg overflow-hidden relative shadow-md">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -61,15 +61,15 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
               />
               
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
-                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <Play className="w-6 h-6 text-black ml-0.5" />
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
                 </div>
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                 <div className="text-white text-sm">
                   <div className="font-medium truncate">{video.submitterLocation}</div>
-                  <div className="text-gray-300 text-xs truncate">{video.racismType}</div>
+                  <div className="text-gray-200 text-xs truncate">{video.racismType}</div>
                 </div>
               </div>
             </div>
@@ -85,7 +85,7 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
             className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-80 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-80 bg-gray-100 rounded-lg overflow-hidden relative shadow-md">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -94,15 +94,15 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
               />
               
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
-                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <Play className="w-6 h-6 text-black ml-0.5" />
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
                 </div>
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                 <div className="text-white text-sm">
                   <div className="font-medium truncate">{video.submitterLocation}</div>
-                  <div className="text-gray-300 text-xs truncate">{video.racismType}</div>
+                  <div className="text-gray-200 text-xs truncate">{video.racismType}</div>
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
             className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-80 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-80 bg-gray-100 rounded-lg overflow-hidden relative shadow-md">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -127,15 +127,15 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
               />
               
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
-                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <Play className="w-6 h-6 text-black ml-0.5" />
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
                 </div>
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                 <div className="text-white text-sm">
                   <div className="font-medium truncate">{video.submitterLocation}</div>
-                  <div className="text-gray-300 text-xs truncate">{video.racismType}</div>
+                  <div className="text-gray-200 text-xs truncate">{video.racismType}</div>
                 </div>
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
             className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-80 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-80 bg-gray-100 rounded-lg overflow-hidden relative shadow-md">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -159,15 +159,15 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
               />
               
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
-                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <Play className="w-6 h-6 text-black ml-0.5" />
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
                 </div>
               </div>
               
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                 <div className="text-white text-sm">
                   <div className="font-medium truncate">{video.submitterLocation}</div>
-                  <div className="text-gray-300 text-xs truncate">{video.racismType}</div>
+                  <div className="text-gray-200 text-xs truncate">{video.racismType}</div>
                 </div>
               </div>
             </div>

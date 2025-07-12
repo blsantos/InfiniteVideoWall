@@ -6,7 +6,7 @@ import VideoWall from "@/components/video-wall";
 import VideoModal from "@/components/video-modal";
 import type { Video as VideoType } from "@shared/schema";
 
-// Générateur de vidéos factices pour le scroll infini
+// Gerador de vídeos de demonstração para o scroll infinito
 const generateDummyVideos = (count: number): VideoType[] => {
   const colors = [
     "6B46C1", "EC4899", "10B981", "F59E0B", "EF4444", "8B5CF6",
@@ -16,29 +16,29 @@ const generateDummyVideos = (count: number): VideoType[] => {
   ];
   
   const racismTypes = [
-    "Discrimination à l'embauche", "Contrôle au faciès", "Racisme au travail", 
-    "Refus de service", "Discrimination logement", "Insultes racistes",
-    "Racisme institutionnel", "Microagressions", "Discrimination scolaire",
-    "Racisme dans les transports", "Refus d'accès", "Commentaires déplacés"
+    "Discriminação no trabalho", "Abordagem policial", "Racismo estrutural", 
+    "Recusa de atendimento", "Discriminação habitacional", "Injúria racial",
+    "Racismo institucional", "Microagressões", "Discriminação escolar",
+    "Racismo no transporte", "Negação de acesso", "Comentários preconceituosos"
   ];
   
   const locations = [
-    "Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux",
-    "Lille", "Strasbourg", "Nantes", "Montpellier", "Rennes", "Reims",
-    "Saint-Étienne", "Toulon", "Le Havre", "Grenoble", "Dijon", "Angers"
+    "São Paulo", "Rio de Janeiro", "Belo Horizonte", "Salvador", "Brasília", "Fortaleza",
+    "Curitiba", "Recife", "Porto Alegre", "Manaus", "Belém", "Goiânia",
+    "Guarulhos", "Campinas", "São Luís", "São Gonçalo", "Maceió", "Duque de Caxias"
   ];
   
   const ages = ["18-25", "25-35", "35-45", "45-55", "55+"];
-  const genders = ["Homme", "Femme", "Non-binaire"];
+  const genders = ["Homem", "Mulher", "Não-binário"];
   
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
-    title: `Témoignage ${i + 1}`,
-    description: `Expérience de ${racismTypes[i % racismTypes.length]}`,
+    title: `Testemunho ${i + 1}`,
+    description: `Experiência de ${racismTypes[i % racismTypes.length]}`,
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    thumbnailUrl: `https://via.placeholder.com/300x400/${colors[i % colors.length]}/ffffff?text=Vidéo+${i + 1}`,
+    thumbnailUrl: `https://picsum.photos/300/400?random=${i + 1}`,
     chapterId: 1,
-    submitterName: "Anonyme",
+    submitterName: "Anônimo",
     submitterAge: ages[i % ages.length],
     submitterGender: genders[i % genders.length],
     submitterLocation: locations[i % locations.length],
@@ -51,7 +51,7 @@ const generateDummyVideos = (count: number): VideoType[] => {
   }));
 };
 
-// Générer 80 vidéos pour tester le scroll infini
+// Gerar 80 vídeos para testar o scroll infinito
 const dummyVideos = generateDummyVideos(80);
 
 export default function Home() {
@@ -86,9 +86,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-x-auto overflow-y-auto">
-      {/* Fundo parallax com logo */}
-      <div className="parallax-bg"></div>
+    <div className="min-h-screen bg-white relative overflow-x-auto overflow-y-auto">
+      {/* Logo flutuante no canto superior direito */}
+      <div className="floating-logo"></div>
       
       {/* Botões de navegação direcional discretos */}
       <div className="fixed inset-0 pointer-events-none z-30">
@@ -96,7 +96,7 @@ export default function Home() {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-4 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
+          className="absolute top-4 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 rounded-full w-10 h-10 p-0 transition-all duration-300 shadow-md"
           onClick={() => scrollToDirection('up')}
         >
           <ChevronUp className="h-4 w-4" />
@@ -106,7 +106,7 @@ export default function Home() {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
+          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 rounded-full w-10 h-10 p-0 transition-all duration-300 shadow-md"
           onClick={() => scrollToDirection('down')}
         >
           <ChevronDown className="h-4 w-4" />
@@ -116,7 +116,7 @@ export default function Home() {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
+          className="absolute top-1/2 left-4 transform -translate-y-1/2 pointer-events-auto bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 rounded-full w-10 h-10 p-0 transition-all duration-300 shadow-md"
           onClick={() => scrollToDirection('left')}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -126,7 +126,7 @@ export default function Home() {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
+          className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-auto bg-white/70 hover:bg-white/90 text-gray-700 border-gray-300 rounded-full w-10 h-10 p-0 transition-all duration-300 shadow-md"
           onClick={() => scrollToDirection('right')}
         >
           <ChevronRight className="h-4 w-4" />
@@ -148,7 +148,7 @@ export default function Home() {
           <Button 
             variant="outline"
             size="lg"
-            className="rounded-full w-14 h-14 bg-black/50 hover:bg-primary/20 text-white border-primary/30 hover:border-primary shadow-lg hover:shadow-xl transition-all duration-300 p-0"
+            className="rounded-full w-14 h-14 bg-white/90 hover:bg-primary/10 text-gray-700 border-primary/50 hover:border-primary shadow-lg hover:shadow-xl transition-all duration-300 p-0"
           >
             <HelpCircle className="h-6 w-6" />
           </Button>
