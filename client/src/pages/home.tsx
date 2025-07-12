@@ -87,6 +87,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black relative overflow-x-auto overflow-y-auto">
+      {/* Fundo parallax com logo */}
+      <div className="parallax-bg"></div>
+      
       {/* Botões de navegação direcional discretos */}
       <div className="fixed inset-0 pointer-events-none z-30">
         {/* Botão Cima */}
@@ -135,7 +138,7 @@ export default function Home() {
         <Link href="/upload">
           <Button 
             size="lg"
-            className="rounded-full w-14 h-14 bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 p-0"
+            className="rounded-full w-14 h-14 bg-primary hover:bg-primary/80 text-white shadow-lg hover:shadow-xl transition-all duration-300 p-0"
           >
             <Plus className="h-6 w-6" />
           </Button>
@@ -145,7 +148,7 @@ export default function Home() {
           <Button 
             variant="outline"
             size="lg"
-            className="rounded-full w-14 h-14 bg-black/50 hover:bg-black/70 text-white border-gray-600 shadow-lg hover:shadow-xl transition-all duration-300 p-0"
+            className="rounded-full w-14 h-14 bg-black/50 hover:bg-primary/20 text-white border-primary/30 hover:border-primary shadow-lg hover:shadow-xl transition-all duration-300 p-0"
           >
             <HelpCircle className="h-6 w-6" />
           </Button>
