@@ -5,6 +5,7 @@ import { Upload, Info, Play, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, 
 import VideoWall from "@/components/video-wall";
 import VideoModal from "@/components/video-modal";
 import type { Video as VideoType } from "@shared/schema";
+import logoUrl from "@assets/logo-repacoes@2x_1752339173739.png";
 
 // Gerador de vídeos de demonstração para o scroll infinito
 const generateDummyVideos = (count: number): VideoType[] => {
@@ -88,7 +89,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white relative overflow-x-auto overflow-y-auto">
       {/* Logo flutuante no canto superior direito */}
-      <div className="floating-logo"></div>
+      <div className="floating-logo">
+        <img 
+          src={logoUrl} 
+          alt="Reparações Históricas" 
+          onError={(e) => {
+            console.log('Logo não carregou');
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.parentElement.style.backgroundColor = 'hsl(16, 85%, 55%)';
+            e.currentTarget.parentElement.innerHTML = '<div style="color: white; font-size: 18px; font-weight: bold; text-align: center; line-height: 44px;">RH</div>';
+          }}
+        />
+      </div>
       
       {/* Botões de navegação direcional discretos */}
       <div className="fixed inset-0 pointer-events-none z-30">
