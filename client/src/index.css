@@ -207,21 +207,35 @@
 
   /* Grid responsivo para telas maiores */
   @media (min-width: 1920px) {
-    .grid-cols-24 {
-      grid-template-columns: repeat(24, minmax(0, 1fr));
+    .grid-cols-14 {
+      grid-template-columns: repeat(14, minmax(0, 1fr));
     }
   }
 
   @media (min-width: 1400px) {
-    .grid-cols-20 {
-      grid-template-columns: repeat(20, minmax(0, 1fr));
+    .grid-cols-12 {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
     }
   }
 
   @media (min-width: 1200px) {
-    .grid-cols-16 {
-      grid-template-columns: repeat(16, minmax(0, 1fr));
+    .grid-cols-10 {
+      grid-template-columns: repeat(10, minmax(0, 1fr));
     }
+  }
+
+  /* Transições suaves globais */
+  * {
+    scroll-behavior: smooth;
+  }
+
+  /* Suavizar hover e transformações */
+  .video-item {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .video-item:hover {
+    transform: scale(1.05);
   }
 
   /* Loading states */

@@ -10,15 +10,15 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
   return (
     <div className="w-full">
       {/* Grid infinito com muitas colunas para scroll horizontal */}
-      <div className="grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+      <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-1 min-w-max">
         {videos.map((video) => (
           <div
             key={video.id}
-            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
             {/* Container da imagem/video */}
-            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-40 bg-gray-900 rounded-lg overflow-hidden relative">
               {/* Imagem de placeholder ou thumbnail */}
               <img
                 src={video.thumbnailUrl}
@@ -28,9 +28,9 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
               />
               
               {/* Overlay com botão de play */}
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                  <Play className="w-4 h-4 text-black ml-0.5" />
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <Play className="w-5 h-5 text-black ml-0.5" />
                 </div>
               </div>
               
@@ -49,10 +49,10 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
         {videos.map((video) => (
           <div
             key={`duplicate-${video.id}`}
-            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-40 bg-gray-900 rounded-lg overflow-hidden relative">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -60,9 +60,9 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
                 loading="lazy"
               />
               
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                  <Play className="w-4 h-4 text-black ml-0.5" />
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <Play className="w-5 h-5 text-black ml-0.5" />
                 </div>
               </div>
               
@@ -78,14 +78,14 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
       </div>
       
       {/* Grid de linhas adicionais para scroll vertical */}
-      <div className="mt-4 grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+      <div className="mt-1 grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-1 min-w-max">
         {videos.slice().reverse().map((video) => (
           <div
             key={`row2-${video.id}`}
-            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-40 bg-gray-900 rounded-lg overflow-hidden relative">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -93,9 +93,9 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
                 loading="lazy"
               />
               
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                  <Play className="w-4 h-4 text-black ml-0.5" />
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <Play className="w-5 h-5 text-black ml-0.5" />
                 </div>
               </div>
               
@@ -111,14 +111,14 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
       </div>
 
       {/* Mais linhas para um efeito realmente infinito */}
-      <div className="mt-4 grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+      <div className="mt-1 grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-1 min-w-max">
         {videos.slice(0, 40).map((video) => (
           <div
             key={`row3-${video.id}`}
-            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-40 bg-gray-900 rounded-lg overflow-hidden relative">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -126,9 +126,9 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
                 loading="lazy"
               />
               
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                  <Play className="w-4 h-4 text-black ml-0.5" />
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <Play className="w-5 h-5 text-black ml-0.5" />
                 </div>
               </div>
               
@@ -143,14 +143,14 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+      <div className="mt-1 grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-1 min-w-max">
         {videos.slice(20, 60).map((video) => (
           <div
             key={`row4-${video.id}`}
-            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            className="relative group cursor-pointer transition-all duration-500 ease-out hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+            <div className="aspect-[9/16] w-40 bg-gray-900 rounded-lg overflow-hidden relative">
               <img
                 src={video.thumbnailUrl}
                 alt={video.title}
@@ -158,9 +158,9 @@ export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
                 loading="lazy"
               />
               
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                  <Play className="w-4 h-4 text-black ml-0.5" />
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <Play className="w-5 h-5 text-black ml-0.5" />
                 </div>
               </div>
               

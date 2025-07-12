@@ -66,7 +66,7 @@ export default function Home() {
   };
 
   const scrollToDirection = (direction: 'up' | 'down' | 'left' | 'right') => {
-    const scrollAmount = 300;
+    const scrollAmount = 400;
     const container = document.documentElement;
     
     switch (direction) {
@@ -87,28 +87,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black relative overflow-x-auto overflow-y-auto">
-      {/* Header minimalista */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-sm border-b border-gray-800">
-        <div className="container mx-auto px-4 py-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-1">
-              MURO INFINITO DE VÍDEOS
-            </h1>
-            <div className="inline-flex items-center gap-2 text-gray-400 text-sm">
-              <Play className="h-3 w-3" />
-              <span>{dummyVideos.length} testimonios</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Botões de navegação direcional discretos */}
       <div className="fixed inset-0 pointer-events-none z-30">
         {/* Botão Cima */}
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-20 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-black/50 hover:bg-black/70 text-white border-gray-600 rounded-full w-10 h-10 p-0"
+          className="absolute top-4 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
           onClick={() => scrollToDirection('up')}
         >
           <ChevronUp className="h-4 w-4" />
@@ -118,7 +103,7 @@ export default function Home() {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-20 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-black/50 hover:bg-black/70 text-white border-gray-600 rounded-full w-10 h-10 p-0"
+          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
           onClick={() => scrollToDirection('down')}
         >
           <ChevronDown className="h-4 w-4" />
@@ -128,7 +113,7 @@ export default function Home() {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 pointer-events-auto bg-black/50 hover:bg-black/70 text-white border-gray-600 rounded-full w-10 h-10 p-0"
+          className="absolute top-1/2 left-4 transform -translate-y-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
           onClick={() => scrollToDirection('left')}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -138,7 +123,7 @@ export default function Home() {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-auto bg-black/50 hover:bg-black/70 text-white border-gray-600 rounded-full w-10 h-10 p-0"
+          className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-auto bg-black/40 hover:bg-black/60 text-white border-gray-600 rounded-full w-10 h-10 p-0 transition-all duration-300"
           onClick={() => scrollToDirection('right')}
         >
           <ChevronRight className="h-4 w-4" />
@@ -150,7 +135,7 @@ export default function Home() {
         <Link href="/upload">
           <Button 
             size="lg"
-            className="rounded-full w-14 h-14 bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+            className="rounded-full w-14 h-14 bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 p-0"
           >
             <Plus className="h-6 w-6" />
           </Button>
@@ -160,21 +145,19 @@ export default function Home() {
           <Button 
             variant="outline"
             size="lg"
-            className="rounded-full w-14 h-14 bg-black/50 hover:bg-black/70 text-white border-gray-600 shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+            className="rounded-full w-14 h-14 bg-black/50 hover:bg-black/70 text-white border-gray-600 shadow-lg hover:shadow-xl transition-all duration-300 p-0"
           >
             <HelpCircle className="h-6 w-6" />
           </Button>
         </Link>
       </div>
 
-      {/* Container do mur de vidéos com largura estendida */}
-      <div className="pt-24 pb-8">
-        <div className="w-full px-4">
-          <VideoWall 
-            videos={dummyVideos} 
-            onVideoSelect={handleVideoSelect} 
-          />
-        </div>
+      {/* Container do mur de vidéos */}
+      <div className="w-full p-2">
+        <VideoWall 
+          videos={dummyVideos} 
+          onVideoSelect={handleVideoSelect} 
+        />
       </div>
 
       {/* Modal pour les vidéos */}
