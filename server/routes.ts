@@ -226,6 +226,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Statistics Routes (protected)
+  app.get('/api/admin/stats/overview', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const stats = await storage.getVideoStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching overview stats:", error);
+      res.status(500).json({ message: "Failed to fetch statistics" });
+    }
+  });
+
+  app.get('/api/admin/stats/location', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const stats = await storage.getVideosByLocation();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching location stats:", error);
+      res.status(500).json({ message: "Failed to fetch location statistics" });
+    }
+  });
+
+  app.get('/api/admin/stats/racism-type', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const stats = await storage.getVideosByRacismType();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching racism type stats:", error);
+      res.status(500).json({ message: "Failed to fetch racism type statistics" });
+    }
+  });
+
+  app.get('/api/admin/stats/age', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const stats = await storage.getVideosByAge();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching age stats:", error);
+      res.status(500).json({ message: "Failed to fetch age statistics" });
+    }
+  });
+
+  app.get('/api/admin/stats/gender', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const stats = await storage.getVideosByGender();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching gender stats:", error);
+      res.status(500).json({ message: "Failed to fetch gender statistics" });
+    }
+  });
+
+  // Admin Video Management Routes
+  app.get('/api/admin/videos', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const { status, racismType, location, search } = req.query;
+      const filters: any = {};
+      
+      if (status) filters.status = status;
+      if (racismType) filters.racismType = racismType;
+      if (location) filters.location = location;
+      if (search) filters.search = search;
+      
+      const videos = await storage.getVideos(filters);
+      res.json(videos);
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+      res.status(500).json({ message: "Failed to fetch videos" });
+    }
+  });
+
+  app.patch('/api/admin/videos/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const videoId = parseInt(req.params.id);
+      const { status, rejectionReason } = req.body;
+      
+      if (!['pending', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+      
+      const updateData: any = { status };
+      if (status === 'rejected' && rejectionReason) {
+        updateData.rejectionReason = rejectionReason;
+      }
+      
+      const updatedVideo = await storage.updateVideoStatus(videoId, updateData, req.user.claims.sub);
+      res.json(updatedVideo);
+    } catch (error) {
+      console.error("Error updating video status:", error);
+      res.status(500).json({ message: "Failed to update video status" });
+    }
+  });
+
   app.get('/api/statistics/location', async (req, res) => {
     try {
       const stats = await storage.getVideosByLocation();

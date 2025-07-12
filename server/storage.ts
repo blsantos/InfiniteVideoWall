@@ -28,6 +28,9 @@ export interface IStorage {
   getVideos(filters?: {
     chapterId?: number;
     status?: string;
+    racismType?: string;
+    location?: string;
+    search?: string;
     limit?: number;
     offset?: number;
   }): Promise<Video[]>;
@@ -115,6 +118,9 @@ export class DatabaseStorage implements IStorage {
   async getVideos(filters?: {
     chapterId?: number;
     status?: string;
+    racismType?: string;
+    location?: string;
+    search?: string;
     limit?: number;
     offset?: number;
   }): Promise<Video[]> {
@@ -126,6 +132,23 @@ export class DatabaseStorage implements IStorage {
     }
     if (filters?.status) {
       conditions.push(eq(videos.status, filters.status));
+    }
+    if (filters?.racismType) {
+      conditions.push(eq(videos.racismType, filters.racismType));
+    }
+    if (filters?.location) {
+      conditions.push(or(
+        sql`${videos.city} ILIKE ${`%${filters.location}%`}`,
+        sql`${videos.state} ILIKE ${`%${filters.location}%`}`
+      ));
+    }
+    if (filters?.search) {
+      conditions.push(or(
+        sql`${videos.title} ILIKE ${`%${filters.search}%`}`,
+        sql`${videos.city} ILIKE ${`%${filters.search}%`}`,
+        sql`${videos.racismType} ILIKE ${`%${filters.search}%`}`,
+        sql`${videos.authorName} ILIKE ${`%${filters.search}%`}`
+      ));
     }
     
     if (conditions.length > 0) {
