@@ -1,6 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
 import type { Video } from "@shared/schema";
 
 interface VideoWallProps {
@@ -9,133 +7,173 @@ interface VideoWallProps {
 }
 
 export default function VideoWall({ videos, onVideoSelect }: VideoWallProps) {
-  const [visibleVideos, setVisibleVideos] = useState(20);
-  const [loading, setLoading] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const loadMoreVideos = () => {
-    if (loading || visibleVideos >= videos.length) return;
-    
-    setLoading(true);
-    setTimeout(() => {
-      setVisibleVideos(prev => Math.min(prev + 20, videos.length));
-      setLoading(false);
-    }, 500);
-  };
-
-  const handleScroll = () => {
-    if (!containerRef.current) return;
-    
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
-    
-    if (scrollPercentage > 0.8) {
-      loadMoreVideos();
-    }
-  };
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, [visibleVideos, videos.length]);
-
-  const getRacismTypeColor = (type: string) => {
-    const colors = {
-      'institucional': 'bg-blue-100 text-blue-800',
-      'estrutural': 'bg-purple-100 text-purple-800',
-      'escolar': 'bg-green-100 text-green-800',
-      'mercado_trabalho': 'bg-orange-100 text-orange-800',
-      'religioso': 'bg-red-100 text-red-800',
-      'linguístico': 'bg-yellow-100 text-yellow-800',
-      'outro': 'bg-gray-100 text-gray-800',
-    };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  };
-
-  const formatRacismType = (type: string) => {
-    const types = {
-      'institucional': 'Institucional',
-      'estrutural': 'Estrutural',
-      'escolar': 'Escolar',
-      'mercado_trabalho': 'Mercado de trabalho',
-      'religioso': 'Religioso',
-      'linguístico': 'Linguístico',
-      'outro': 'Outro',
-    };
-    return types[type as keyof typeof types] || type;
-  };
-
   return (
-    <div ref={containerRef} className="max-h-screen overflow-y-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {videos.slice(0, visibleVideos).map((video) => (
-          <Card
+    <div className="w-full">
+      {/* Grid infinito com muitas colunas para scroll horizontal */}
+      <div className="grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+        {videos.map((video) => (
+          <div
             key={video.id}
-            className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
             onClick={() => onVideoSelect(video)}
           >
-            <div className="aspect-[9/16] bg-gray-900 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-12 h-12 bg-white bg-opacity-80 rounded-full group-hover:bg-opacity-100 transition-all"
-                >
-                  <i className="fas fa-play text-gray-800 ml-1"></i>
-                </Button>
-              </div>
-              {video.duration && (
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                  {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
+            {/* Container da imagem/video */}
+            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+              {/* Imagem de placeholder ou thumbnail */}
+              <img
+                src={video.thumbnailUrl}
+                alt={video.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              
+              {/* Overlay com botão de play */}
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Play className="w-4 h-4 text-black ml-0.5" />
                 </div>
-              )}
+              </div>
+              
+              {/* Informações básicas overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                <div className="text-white text-xs">
+                  <div className="font-medium truncate">{video.submitterLocation}</div>
+                  <div className="text-gray-300 text-[10px] truncate">{video.racismType}</div>
+                </div>
+              </div>
             </div>
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                <span>{video.city}, {video.state}</span>
-                <span>{video.ageRange}</span>
+          </div>
+        ))}
+        
+        {/* Duplicar videos para efeito infinito */}
+        {videos.map((video) => (
+          <div
+            key={`duplicate-${video.id}`}
+            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            onClick={() => onVideoSelect(video)}
+          >
+            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+              <img
+                src={video.thumbnailUrl}
+                alt={video.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Play className="w-4 h-4 text-black ml-0.5" />
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className={`inline-block text-xs px-2 py-1 rounded-full ${getRacismTypeColor(video.racismType)}`}>
-                  {formatRacismType(video.racismType)}
-                </span>
-                {video.authorName && (
-                  <span className="text-xs text-gray-500">
-                    {video.authorName}
-                  </span>
-                )}
+              
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                <div className="text-white text-xs">
+                  <div className="font-medium truncate">{video.submitterLocation}</div>
+                  <div className="text-gray-300 text-[10px] truncate">{video.racismType}</div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Grid de linhas adicionais para scroll vertical */}
+      <div className="mt-4 grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+        {videos.slice().reverse().map((video) => (
+          <div
+            key={`row2-${video.id}`}
+            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            onClick={() => onVideoSelect(video)}
+          >
+            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+              <img
+                src={video.thumbnailUrl}
+                alt={video.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Play className="w-4 h-4 text-black ml-0.5" />
+                </div>
+              </div>
+              
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                <div className="text-white text-xs">
+                  <div className="font-medium truncate">{video.submitterLocation}</div>
+                  <div className="text-gray-300 text-[10px] truncate">{video.racismType}</div>
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Load More Button */}
-      {visibleVideos < videos.length && (
-        <div className="text-center mt-8">
-          <Button
-            onClick={loadMoreVideos}
-            disabled={loading}
-            variant="outline"
-            className="px-6 py-3"
+      {/* Mais linhas para um efeito realmente infinito */}
+      <div className="mt-4 grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+        {videos.slice(0, 40).map((video) => (
+          <div
+            key={`row3-${video.id}`}
+            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            onClick={() => onVideoSelect(video)}
           >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-                Carregando...
-              </>
-            ) : (
-              <>
-                <i className="fas fa-chevron-down mr-2"></i>
-                Carregar mais vídeos
-              </>
-            )}
-          </Button>
-        </div>
-      )}
+            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+              <img
+                src={video.thumbnailUrl}
+                alt={video.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Play className="w-4 h-4 text-black ml-0.5" />
+                </div>
+              </div>
+              
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                <div className="text-white text-xs">
+                  <div className="font-medium truncate">{video.submitterLocation}</div>
+                  <div className="text-gray-300 text-[10px] truncate">{video.racismType}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 xl:grid-cols-20 2xl:grid-cols-24 gap-2 min-w-max">
+        {videos.slice(20, 60).map((video) => (
+          <div
+            key={`row4-${video.id}`}
+            className="relative group cursor-pointer transition-transform hover:scale-105 hover:z-10"
+            onClick={() => onVideoSelect(video)}
+          >
+            <div className="aspect-[9/16] w-32 bg-gray-900 rounded-lg overflow-hidden relative">
+              <img
+                src={video.thumbnailUrl}
+                alt={video.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Play className="w-4 h-4 text-black ml-0.5" />
+                </div>
+              </div>
+              
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                <div className="text-white text-xs">
+                  <div className="font-medium truncate">{video.submitterLocation}</div>
+                  <div className="text-gray-300 text-[10px] truncate">{video.racismType}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
