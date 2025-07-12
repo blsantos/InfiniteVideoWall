@@ -238,11 +238,11 @@
     transform: scale(1.05);
   }
 
-  /* Logo flutuante no canto superior direito */
+  /* Logo flutuante no canto superior esquerdo */
   .floating-logo {
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 20px;
     width: 60px;
     height: 60px;
     border-radius: 50%;

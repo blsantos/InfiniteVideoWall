@@ -88,7 +88,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-x-auto overflow-y-auto">
-      {/* Logo flutuante no canto superior direito */}
+      {/* Logo flutuante no canto superior esquerdo */}
       <div className="floating-logo">
         <img 
           src={logoUrl} 

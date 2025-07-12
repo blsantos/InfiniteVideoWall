@@ -151,3 +151,27 @@ Preferred communication style: Simple, everyday language.
 
 Changelog:
 - July 05, 2025. Initial setup
+- July 12, 2025. Layout e navegabilidade completos:
+  - Interface de muro infinito de vídeos finalizada
+  - Tema branco com cores laranja do logo
+  - Localização brasileira (cidades, tipos de racismo, demografia)
+  - Logo posicionado no canto superior esquerdo
+  - Navegação direcional com 4 botões cardinais
+  - 2 botões de ação flutuantes (upload e info)
+  - Thumbnails maiores para melhor visibilidade
+  - Sistema de QR codes preparado para capítulos de livros
+
+## Próximas Fases
+
+### Painel Admin Necessário
+- Dashboard de moderação de vídeos
+- Analytics das informações demográficas
+- Gestão de categorias e capítulos
+- Geração de QR codes para capítulos
+- Funcionalidades de compartilhamento social
+
+### Integração WordPress
+- Plugin/iframe para reparacoeshistoricas.org
+- Sistema de embedding responsivo
+- Sincronização de dados entre sistemas
+- SEO e meta tags para compartilhamento social
