@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integração Muro Infinito de Vídeos</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: #ff6b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .video-wall-container {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            min-height: 600px;
+        }
+        
+        .video-wall-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .chapter-tabs {
+            display: flex;
+            background: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+        }
+        
+        .chapter-tab {
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .chapter-tab:hover {
+            background: #e8e8e8;
+            color: #333;
+        }
+        
+        .chapter-tab.active {
+            color: #ff6b35;
+            border-bottom-color: #ff6b35;
+            background: white;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .chapter-tabs {
+                flex-direction: column;
+            }
+            
+            .video-wall-container {
+                height: 70vh;
+                min-height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Muro Infinito de Vídeos</h1>
+            <p>Experiências pessoais sobre racismo - reparacoeshistoricas.org</p>
+        </div>
+        
+        <div class="chapter-tabs">
+            <button class="chapter-tab active" onclick="loadChapter('')">
+                Todos os Vídeos
+            </button>
+            <button class="chapter-tab" onclick="loadChapter('1')">
+                Capítulo 1
+            </button>
+            <button class="chapter-tab" onclick="loadChapter('2')">
+                Capítulo 2
+            </button>
+            <button class="chapter-tab" onclick="loadChapter('3')">
+                Capítulo 3
+            </button>
+            <!-- Adicione mais capítulos conforme necessário -->
+        </div>
+        
+        <div class="video-wall-container">
+            <div class="loading" id="loading">Carregando...</div>
+            <iframe 
+                id="videoWallFrame"
+                class="video-wall-iframe"
+                src="https://seu-repl.replit.app/"
+                title="Muro Infinito de Vídeos"
+                onload="hideLoading()">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        // URL base da aplicação (SUBSTITUA PELA SUA URL)
+        const BASE_URL = 'https://seu-repl.replit.app';
+        
+        function loadChapter(chapterId) {
+            const loading = document.getElementById('loading');
+            const iframe = document.getElementById('videoWallFrame');
+            
+            // Mostrar loading
+            loading.style.display = 'block';
+            
+            // Construir URL
+            let url = BASE_URL;
+            if (chapterId) {
+                url += '/chapter/' + chapterId;
+            }
+            
+            // Carregar capítulo
+            iframe.src = url;
+            
+            // Atualizar tabs
+            document.querySelectorAll('.chapter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        // Comunicação com iframe (opcional)
+        window.addEventListener('message', function(event) {
+            // Verificar origem por segurança
+            if (event.origin !== BASE_URL.replace(/\/$/, '')) return;
+            
+            // Processar mensagens do iframe se necessário
+            console.log('Mensagem do iframe:', event.data);
+        });
+    </script>
+</body>
+</html>
