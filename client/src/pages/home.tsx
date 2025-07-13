@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Upload, Info, Play, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Plus, HelpCircle } from "lucide-react";
+import { Upload, Info, Play, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Plus, HelpCircle, Settings } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import VideoWall from "@/components/video-wall";
 import VideoModal from "@/components/video-modal";
 import type { Video as VideoType } from "@shared/schema";
@@ -57,6 +58,7 @@ const dummyVideos = generateDummyVideos(80);
 
 export default function Home() {
   const [selectedVideo, setSelectedVideo] = useState<VideoType | null>(null);
+  const { user } = useAuth();
 
   const handleVideoSelect = (video: VideoType) => {
     setSelectedVideo(video);
@@ -165,6 +167,18 @@ export default function Home() {
             <HelpCircle className="h-6 w-6" />
           </Button>
         </Link>
+
+        {user?.isAdmin && (
+          <Link href="/admin">
+            <Button 
+              variant="outline"
+              size="lg"
+              className="rounded-full w-14 h-14 bg-orange-500 hover:bg-orange-600 text-white border-orange-500 shadow-lg hover:shadow-xl transition-all duration-300 p-0"
+            >
+              <Settings className="h-6 w-6" />
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Container do mur de vidéos */}
