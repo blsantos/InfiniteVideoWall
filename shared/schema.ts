@@ -50,7 +50,8 @@ export const chapters = pgTable("chapters", {
 // Videos table for storing video information
 export const videos = pgTable("videos", {
   id: serial("id").primaryKey(),
-  youtubeId: varchar("youtube_id").notNull(),
+  youtubeId: varchar("youtube_id"),
+  youtubeUrl: varchar("youtube_url"),
   title: varchar("title"),
   duration: integer("duration"), // in seconds
   chapterId: integer("chapter_id").references(() => chapters.id),

@@ -6,21 +6,37 @@ import { insertVideoSchema, updateVideoStatusSchema } from "@shared/schema";
 import { z } from "zod";
 import QRCode from "qrcode";
 import multer from "multer";
-import { google } from "googleapis";
+import YouTubeService from "./youtube";
+import fs from "fs";
+import path from "path";
 
-const upload = multer({ storage: multer.memoryStorage() });
-
-// YouTube API setup
-const youtube = google.youtube({
-  version: 'v3',
-  auth: process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY,
+// Configurar upload temporário
+const upload = multer({ 
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = 'uploads/temp';
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/wmv'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Formato de vídeo não suportado'));
+    }
+  },
+  limits: {
+    fileSize: 2 * 1024 * 1024 * 1024 // 2GB limite
+  }
 });
-
-const oauth2Client = new google.auth.OAuth2(
-  process.env.YOUTUBE_CLIENT_ID,
-  process.env.YOUTUBE_CLIENT_SECRET,
-  process.env.YOUTUBE_REDIRECT_URL
-);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -131,47 +147,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/videos', upload.single('videoFile'), async (req, res) => {
+  // YouTube OAuth routes
+  app.get('/api/youtube/auth', (req, res) => {
+    const state = JSON.stringify({ userId: req.query.userId || null });
+    const authUrl = YouTubeService.getAuthUrl(state);
+    res.json({ authUrl });
+  });
+
+  app.get('/api/youtube/callback', async (req, res) => {
+    try {
+      const { code, state } = req.query;
+      
+      if (!code) {
+        return res.status(400).json({ message: 'Código de autorização ausente' });
+      }
+
+      const tokens = await YouTubeService.getTokensFromCode(code as string);
+      
+      // Salvar tokens na sessão (temporário)
+      (req as any).session.youtubeTokens = tokens;
+      
+      // Redirecionar de volta para a página de upload
+      res.redirect('/upload?youtube=success');
+    } catch (error) {
+      console.error('Erro no callback YouTube:', error);
+      res.redirect('/upload?youtube=error');
+    }
+  });
+
+  // Upload de vídeo com integração YouTube
+  app.post('/api/videos', upload.single('video'), async (req: any, res) => {
     try {
       const videoData = insertVideoSchema.parse(req.body);
-      const videoFile = req.file;
+      let youtubeVideoId = null;
+      let youtubeUrl = null;
 
-      if (!videoFile) {
-        return res.status(400).json({ message: "Video file is required" });
+      // Se há arquivo de vídeo, fazer upload para YouTube
+      if (req.file) {
+        const tokens = req.session.youtubeTokens;
+        
+        if (!tokens) {
+          return res.status(400).json({ 
+            message: 'Autorização do YouTube necessária',
+            needsAuth: true,
+            authUrl: YouTubeService.getAuthUrl()
+          });
+        }
+
+        try {
+          // Validar arquivo
+          if (!YouTubeService.validateVideoFormat(req.file.path)) {
+            fs.unlinkSync(req.file.path); // Limpar arquivo
+            return res.status(400).json({ message: 'Formato de vídeo não suportado' });
+          }
+
+          if (!YouTubeService.validateFileSize(req.file.path)) {
+            fs.unlinkSync(req.file.path); // Limpar arquivo
+            return res.status(400).json({ message: 'Arquivo muito grande (máximo 2GB)' });
+          }
+
+          // Fazer upload para YouTube
+          const uploadResult = await YouTubeService.uploadVideo(
+            req.file.path,
+            {
+              title: videoData.title,
+              description: `${videoData.description}\n\nCompartilhado em reparacoeshistoricas.org`,
+              tags: ['racismo', 'relato', 'experiencia', 'brasil', videoData.racismType],
+              privacyStatus: 'unlisted' // Não listado por padrão
+            },
+            tokens.access_token!,
+            tokens.refresh_token
+          );
+
+          youtubeVideoId = uploadResult.videoId;
+          youtubeUrl = uploadResult.url;
+
+          // Limpar arquivo temporário
+          fs.unlinkSync(req.file.path);
+
+        } catch (uploadError: any) {
+          console.error('Erro no upload YouTube:', uploadError);
+          
+          // Limpar arquivo temporário
+          if (req.file?.path && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+          
+          return res.status(500).json({ 
+            message: `Erro no upload para YouTube: ${uploadError.message}`,
+            youtubeError: true
+          });
+        }
       }
 
-      // Upload to YouTube (unlisted)
-      const youtubeResponse = await youtube.videos.insert({
-        part: ['snippet', 'status'],
-        requestBody: {
-          snippet: {
-            title: `Relato de racismo - ${videoData.city}, ${videoData.state}`,
-            description: `Relato de experiência de racismo do tipo: ${videoData.racismType}`,
-            tags: ['racismo', 'reparacoes-historicas', videoData.racismType],
-          },
-          status: {
-            privacyStatus: 'unlisted',
-          },
-        },
-        media: {
-          body: videoFile.buffer,
-        },
-      });
-
-      const youtubeId = youtubeResponse.data.id;
-      if (!youtubeId) {
-        throw new Error('Failed to upload to YouTube');
-      }
-
-      // Save video info to database
-      const video = await storage.createVideo({
+      // Salvar no banco com informações do YouTube
+      const finalVideoData = {
         ...videoData,
-        youtubeId,
+        youtubeId: youtubeVideoId,
+        youtubeUrl: youtubeUrl,
+        status: 'pending' as const
+      };
+
+      const video = await storage.createVideo(finalVideoData);
+      res.json({ 
+        ...video, 
+        youtubeUploaded: !!youtubeVideoId,
+        youtubeUrl 
       });
 
-      res.json(video);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating video:", error);
+      
+      // Limpar arquivo temporário em caso de erro
+      if (req.file?.path && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      
       res.status(500).json({ message: "Failed to create video" });
     }
   });

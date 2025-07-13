@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Youtube } from "lucide-react";
 import { z } from "zod";
 
 const uploadFormSchema = insertVideoSchema.extend({
@@ -26,6 +27,26 @@ type UploadFormData = z.infer<typeof uploadFormSchema>;
 export default function UploadForm() {
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
+  const [youtubeAuth, setYoutubeAuth] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Verificar se YouTube foi autorizado via URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('youtube') === 'success') {
+      setYoutubeAuth('success');
+      toast({
+        title: "YouTube Autorizado",
+        description: "Agora você pode fazer upload de vídeos diretamente para o YouTube!",
+      });
+    } else if (urlParams.get('youtube') === 'error') {
+      toast({
+        title: "Erro na Autorização",
+        description: "Houve um problema ao autorizar o YouTube. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   const form = useForm<UploadFormData>({
     resolver: zodResolver(uploadFormSchema),
@@ -42,7 +63,7 @@ export default function UploadForm() {
       const formData = new FormData();
       
       // Add video file
-      formData.append('videoFile', data.videoFile);
+      formData.append('video', data.videoFile);
       
       // Add other form data
       Object.entries(data).forEach(([key, value]) => {
@@ -63,21 +84,49 @@ export default function UploadForm() {
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (response: any) => {
+      const message = response.youtubeUploaded 
+        ? "Vídeo enviado com sucesso para o YouTube e nossa plataforma!"
+        : "Vídeo enviado com sucesso e está aguardando moderação.";
+      
       toast({
-        title: "Vídeo enviado com sucesso!",
-        description: "Seu relato foi enviado e será analisado antes da publicação.",
+        title: "Upload Realizado!",
+        description: message,
       });
       form.reset();
+      setUploadProgress(0);
     },
-    onError: (error) => {
-      toast({
-        title: "Erro ao enviar vídeo",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      if (error.message.includes('Autorização do YouTube')) {
+        toast({
+          title: "Autorização Necessária",
+          description: "Clique no botão 'Autorizar YouTube' para fazer upload direto.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao enviar vídeo",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+      setUploadProgress(0);
     },
   });
+
+  const authorizeYoutube = async () => {
+    try {
+      const response = await fetch('/api/youtube/auth');
+      const data = await response.json();
+      window.location.href = data.authUrl;
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível iniciar autorização do YouTube",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -126,6 +175,40 @@ export default function UploadForm() {
         {/* Video Upload Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-primary">Vídeo</h3>
+          
+          {/* YouTube Authorization */}
+          {!youtubeAuth && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <Youtube className="h-5 w-5 text-red-600" />
+                <div className="flex-1">
+                  <h4 className="font-medium text-red-900">Autorização do YouTube necessária</h4>
+                  <p className="text-sm text-red-700">Para fazer upload direto para o YouTube, você precisa autorizar nossa aplicação.</p>
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={authorizeYoutube}
+                  className="border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  Autorizar YouTube
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          {youtubeAuth === 'success' && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <Youtube className="h-5 w-5 text-green-600" />
+                <div>
+                  <h4 className="font-medium text-green-900">YouTube autorizado!</h4>
+                  <p className="text-sm text-green-700">Seus vídeos serão enviados diretamente para o YouTube.</p>
+                </div>
+              </div>
+            </div>
+          )}
           <FormField
             control={form.control}
             name="videoFile"
