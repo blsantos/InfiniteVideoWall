@@ -154,6 +154,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ authUrl });
   });
 
+  // Verificar informações do canal YouTube
+  app.get('/api/youtube/channel-info', async (req: any, res) => {
+    try {
+      const tokens = req.session.youtubeTokens;
+      
+      if (!tokens) {
+        return res.status(400).json({ 
+          message: 'Autorização do YouTube necessária',
+          needsAuth: true 
+        });
+      }
+
+      const channelInfo = await YouTubeService.getChannelInfo(tokens.access_token!);
+      res.json(channelInfo);
+    } catch (error) {
+      console.error('Erro ao obter informações do canal:', error);
+      res.status(500).json({ message: 'Erro ao obter informações do canal' });
+    }
+  });
+
   app.get('/api/youtube/callback', async (req, res) => {
     try {
       const { code, state } = req.query;

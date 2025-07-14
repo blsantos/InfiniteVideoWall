@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Admin</title>
+    <script>
+        async function testAdmin() {
+            try {
+                // Verificar autenticação
+                const userRes = await fetch('/api/auth/user', { credentials: 'include' });
+                console.log('User status:', userRes.status);
+                if (userRes.ok) {
+                    const user = await userRes.json();
+                    console.log('User:', user);
+                    document.getElementById('user-info').innerHTML = `
+                        <p>Usuário: ${user.firstName} ${user.lastName}</p>
+                        <p>Admin: ${user.isAdmin ? 'Sim' : 'Não'}</p>
+                    `;
+                    
+                    // Testar acesso admin
+                    if (user.isAdmin) {
+                        const videosRes = await fetch('/api/admin/videos', { credentials: 'include' });
+                        console.log('Videos status:', videosRes.status);
+                        if (videosRes.ok) {
+                            const videos = await videosRes.json();
+                            console.log('Videos:', videos);
+                            document.getElementById('videos-info').innerHTML = `
+                                <h3>Vídeos (${videos.length})</h3>
+                                <ul>
+                                    ${videos.map(v => `<li>${v.title} - ${v.status}</li>`).join('')}
+                                </ul>
+                            `;
+                        } else {
+                            document.getElementById('videos-info').innerHTML = '<p>Erro ao carregar vídeos</p>';
+                        }
+                    }
+                } else {
+                    document.getElementById('user-info').innerHTML = '<p>Não autenticado</p>';
+                }
+
+                // Testar canal YouTube
+                const channelRes = await fetch('/api/youtube/channel-info', { credentials: 'include' });
+                if (channelRes.ok) {
+                    const channel = await channelRes.json();
+                    document.getElementById('youtube-info').innerHTML = `
+                        <h3>Canal YouTube</h3>
+                        <p>Nome: ${channel.snippet?.title}</p>
+                        <p>URL: https://youtube.com/channel/${channel.id}</p>
+                        <p>Inscritos: ${channel.statistics?.subscriberCount}</p>
+                    `;
+                } else {
+                    document.getElementById('youtube-info').innerHTML = '<p>YouTube não autorizado</p>';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+    </script>
+</head>
+<body onload="testAdmin()">
+    <h1>Teste do Sistema Admin</h1>
+    
+    <div id="user-info">
+        <p>Carregando informações do usuário...</p>
+    </div>
+    
+    <div id="videos-info">
+        <p>Carregando vídeos...</p>
+    </div>
+    
+    <div id="youtube-info">
+        <p>Carregando informações do YouTube...</p>
+    </div>
+    
+    <hr>
+    <p><a href="/api/login">Fazer Login</a></p>
+    <p><a href="/api/youtube/auth">Autorizar YouTube</a></p>
+</body>
+</html>

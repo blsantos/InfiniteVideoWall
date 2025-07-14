@@ -146,6 +146,26 @@ export class YouTubeService {
   }
 
   /**
+   * Obtém informações do canal autenticado
+   */
+  static async getChannelInfo(accessToken: string) {
+    try {
+      oauth2Client.setCredentials({ access_token: accessToken });
+      
+      const response = await youtube.channels.list({
+        auth: oauth2Client,
+        part: ['snippet', 'statistics'],
+        mine: true
+      });
+
+      return response.data.items?.[0] || null;
+    } catch (error) {
+      console.error('Erro ao obter informações do canal:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Lista vídeos do canal autenticado
    */
   static async listChannelVideos(accessToken: string, maxResults = 50) {
