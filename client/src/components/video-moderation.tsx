@@ -20,8 +20,8 @@ import type { Video } from "@shared/schema";
 export default function VideoModeration() {
   const { toast } = useToast();
   const [filters, setFilters] = useState({
-    status: '',
-    racismType: '',
+    status: 'all',
+    racismType: 'all',
     location: '',
     search: '',
   });
@@ -119,8 +119,8 @@ export default function VideoModeration() {
   };
 
   const filteredVideos = videos?.filter(video => {
-    if (filters.status && video.status !== filters.status) return false;
-    if (filters.racismType && video.racismType !== filters.racismType) return false;
+    if (filters.status !== 'all' && video.status !== filters.status) return false;
+    if (filters.racismType !== 'all' && video.racismType !== filters.racismType) return false;
     if (filters.location && !video.city.toLowerCase().includes(filters.location.toLowerCase())) return false;
     if (filters.search && !video.title?.toLowerCase().includes(filters.search.toLowerCase()) && 
         !video.city.toLowerCase().includes(filters.search.toLowerCase()) &&
@@ -192,7 +192,7 @@ export default function VideoModeration() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="pending">Pendente</SelectItem>
                 <SelectItem value="approved">Aprovado</SelectItem>
                 <SelectItem value="rejected">Rejeitado</SelectItem>
@@ -204,7 +204,7 @@ export default function VideoModeration() {
                 <SelectValue placeholder="Tipo de Racismo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="Discriminação no trabalho">Discriminação no trabalho</SelectItem>
                 <SelectItem value="Abordagem policial">Abordagem policial</SelectItem>
                 <SelectItem value="Racismo em estabelecimentos">Racismo em estabelecimentos</SelectItem>
