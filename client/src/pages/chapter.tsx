@@ -20,9 +20,20 @@ export default function Chapter() {
   const { data: videos, isLoading: videosLoading } = useQuery<Video[]>({
     queryKey: [`/api/videos`, chapterId],
     queryFn: async () => {
-      const response = await fetch(`/api/videos?chapterId=${chapterId}&status=approved`);
+      const params = new URLSearchParams({
+        status: 'approved'
+      });
+      
+      if (chapter?.category) {
+        params.append('category', chapter.category);
+      } else {
+        params.append('chapterId', chapterId.toString());
+      }
+      
+      const response = await fetch(`/api/videos?${params}`);
       return response.json();
     },
+    enabled: !chapterLoading, // Só executa depois que o chapter carregou
   });
 
   return (

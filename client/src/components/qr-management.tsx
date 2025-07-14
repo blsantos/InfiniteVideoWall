@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -25,8 +26,21 @@ export default function QRManagement() {
     defaultValues: {
       title: "",
       description: "",
+      category: "",
     },
   });
+
+  const categories = [
+    "Discriminação no trabalho",
+    "Abordagem policial", 
+    "Racismo em estabelecimentos",
+    "Discriminação em educação",
+    "Racismo estrutural",
+    "Racismo no transporte público",
+    "Discriminação em serviços de saúde",
+    "Racismo digital/redes sociais",
+    "Outro"
+  ];
 
   const { data: chapters, isLoading } = useQuery<Chapter[]>({
     queryKey: ['/api/chapters'],
@@ -169,6 +183,31 @@ export default function QRManagement() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoria</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma categoria..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
@@ -201,7 +240,12 @@ export default function QRManagement() {
               </div>
               
               <h4 className="font-medium text-primary mb-2">{chapter.title}</h4>
-              <p className="text-sm text-gray-600 mb-3">{chapter.description}</p>
+              <p className="text-sm text-gray-600 mb-1">{chapter.description}</p>
+              {chapter.category && (
+                <p className="text-xs text-orange-600 font-medium mb-3">
+                  📂 {chapter.category}
+                </p>
+              )}
               
               <div className="space-y-2">
                 <Button

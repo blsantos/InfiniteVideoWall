@@ -31,6 +31,7 @@ export interface IStorage {
     racismType?: string;
     location?: string;
     search?: string;
+    category?: string;
     limit?: number;
     offset?: number;
   }): Promise<Video[]>;
@@ -121,6 +122,7 @@ export class DatabaseStorage implements IStorage {
     racismType?: string;
     location?: string;
     search?: string;
+    category?: string;
     limit?: number;
     offset?: number;
   }): Promise<Video[]> {
@@ -149,6 +151,13 @@ export class DatabaseStorage implements IStorage {
         sql`${videos.racismType} ILIKE ${`%${filters.search}%`}`,
         sql`${videos.authorName} ILIKE ${`%${filters.search}%`}`
       ));
+    }
+
+    // Se há filtro por categoria, fazer join com chapters
+    if (filters?.category) {
+      query = db.select().from(videos)
+        .innerJoin(chapters, eq(videos.chapterId, chapters.id))
+        .where(eq(chapters.category, filters.category));
     }
     
     if (conditions.length > 0) {

@@ -42,6 +42,7 @@ export const chapters = pgTable("chapters", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   description: text("description"),
+  category: varchar("category", { length: 100 }),
   qrCode: text("qr_code"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

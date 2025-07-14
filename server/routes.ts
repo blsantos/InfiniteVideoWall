@@ -119,13 +119,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Video routes
   app.get('/api/videos', async (req, res) => {
     try {
-      const { chapterId, status, limit, offset } = req.query;
-      const videos = await storage.getVideos({
-        chapterId: chapterId ? parseInt(chapterId as string) : undefined,
-        status: status as string,
-        limit: limit ? parseInt(limit as string) : undefined,
-        offset: offset ? parseInt(offset as string) : undefined,
-      });
+      const { chapterId, status, racismType, location, search, category, limit = '20', offset = '0' } = req.query;
+      
+      const filters: any = {};
+      if (chapterId) filters.chapterId = parseInt(chapterId as string);
+      if (status) filters.status = status as string;
+      if (racismType) filters.racismType = racismType as string;
+      if (location) filters.location = location as string;
+      if (search) filters.search = search as string;
+      if (category) filters.category = category as string;
+      
+      filters.limit = parseInt(limit as string);
+      filters.offset = parseInt(offset as string);
+      
+      const videos = await storage.getVideos(filters);
       res.json(videos);
     } catch (error) {
       console.error("Error fetching videos:", error);
