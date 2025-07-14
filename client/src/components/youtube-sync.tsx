@@ -247,20 +247,31 @@ export default function YouTubeSync() {
 
           {/* Instruções */}
           <div className="p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium text-blue-800 mb-2">Sobre a Autorização</h4>
+            <h4 className="font-medium text-blue-800 mb-2">Configuração OAuth YouTube</h4>
             <div className="text-sm text-blue-700 space-y-2">
-              <p><strong>Erro 403:</strong> O app está em modo de teste no Google Console</p>
-              <p><strong>Solução:</strong> Adicionar email contact@b2santos.fr como usuário teste</p>
-              <p><strong>Sincronização:</strong> Funciona sem autorização usando API pública</p>
-              <p><strong>Upload:</strong> Requer autorização OAuth completa</p>
-              <div className="mt-3 p-2 bg-blue-100 rounded">
-                <p className="font-medium">Canal: @ReparacoesHistoricasBrasil</p>
-                <p>ID: UCzpIDynWSNfGx4djJS_DFiQ</p>
+              <p><strong>Erro 403:</strong> App em modo de teste no Google Console</p>
+              
+              <div className="mt-3 p-2 bg-yellow-100 rounded border-l-4 border-yellow-400">
+                <p className="font-medium text-yellow-800">Passos para resolver:</p>
+                <ol className="list-decimal list-inside mt-2 space-y-1 text-yellow-700">
+                  <li>Google Cloud Console → APIs & Services → Credentials</li>
+                  <li>OAuth 2.0 Client ID → Adicionar URL de redirect:</li>
+                  <li className="font-mono text-xs bg-yellow-200 px-2 py-1 rounded">
+                    https://883149f1-1c75-46d3-8a00-b3d17d4dda1d-00-zh6zir2txvr9.worf.replit.dev/api/youtube/callback
+                  </li>
+                  <li>OAuth consent screen → Test users → Adicionar: contact@b2santos.fr</li>
+                  <li>APIs & Services → Library → Habilitar YouTube Data API v3</li>
+                </ol>
+              </div>
+
+              <div className="mt-3 p-2 bg-green-100 rounded">
+                <p className="font-medium text-green-800">Canal: @ReparacoesHistoricasBrasil</p>
+                <p className="text-green-700">ID: UCzpIDynWSNfGx4djJS_DFiQ</p>
                 <a 
                   href="https://www.youtube.com/channel/UCzpIDynWSNfGx4djJS_DFiQ" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-green-600 hover:underline"
                 >
                   Ver Canal →
                 </a>

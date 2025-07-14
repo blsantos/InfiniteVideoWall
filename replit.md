@@ -187,22 +187,27 @@ Changelog:
 - Códigos WordPress prontos para uso
 - Guias de deployment para Hostinger
 
-### Configuração YouTube OAuth
+### Configuração YouTube OAuth - ERRO 403 ATIVO
+**PROBLEMA:** App em modo de teste no Google Console, usuário não autorizado
+
 **URLs de Redirecionamento necessárias no Google Console:**
-- Teste: https://[replit-domain]/api/youtube/callback
+- Atual: https://883149f1-1c75-46d3-8a00-b3d17d4dda1d-00-zh6zir2txvr9.worf.replit.dev/api/youtube/callback
 - Produção: https://reparacoeshistoricas.org/api/youtube/callback
 - Local: http://localhost:5000/api/youtube/callback
 
-**Usuários de Teste (Google Console):**
-- Adicionar: contact@b2santos.fr como usuário de teste
-- Status: App em modo de teste, requer usuários autorizados
+**SOLUÇÃO NECESSÁRIA:**
+1. Google Cloud Console → APIs & Services → Credentials
+2. OAuth 2.0 Client ID → Adicionar URL de redirect atual
+3. OAuth consent screen → Test users → Adicionar: contact@b2santos.fr
+4. APIs & Services → Library → Habilitar YouTube Data API v3
+5. Verificar se Client ID e Secret estão corretos
 
 **Canal YouTube:**
 - Nome: @ReparacoesHistoricasBrasil
 - Channel ID: UCzpIDynWSNfGx4djJS_DFiQ
 - URL: https://www.youtube.com/channel/UCzpIDynWSNfGx4djJS_DFiQ
 
-**Funcionalidades:**
+**Status Atual:**
 - Sincronização: Funciona com API pública (sem OAuth)
-- Upload: Requer OAuth completo (usuário autorizado)
-- Playlists: Sistema de categorização implementado
+- Upload: BLOQUEADO - Erro 403 OAuth
+- Playlists: BLOQUEADO - Erro 403 OAuth
