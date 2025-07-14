@@ -42,7 +42,7 @@ export default function VideoModeration() {
     }
   }, [error, toast]);
 
-  const { data: videos, isLoading: videosLoading } = useQuery<Video[]>({
+  const { data: videos, isLoading: videosLoading, error } = useQuery<Video[]>({
     queryKey: ['/api/admin/videos', filters],
     retry: false,
   });
@@ -64,11 +64,22 @@ export default function VideoModeration() {
       setRejectionReason('');
     },
     onError: (error: any) => {
-      toast({
-        title: "Erro ao atualizar status",
-        description: error.message || "Ocorreu um erro inesperado",
-        variant: "destructive",
-      });
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Acesso não autorizado",
+          description: "Você não tem permissão para esta ação. Redirecionando...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 2000);
+      } else {
+        toast({
+          title: "Erro ao atualizar status",
+          description: error.message || "Ocorreu um erro inesperado",
+          variant: "destructive",
+        });
+      }
     },
   });
 
