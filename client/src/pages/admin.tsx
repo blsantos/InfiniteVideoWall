@@ -1,10 +1,15 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminDashboard from "@/components/admin-dashboard";
 import YouTubeSync from "@/components/youtube-sync";
+import PlaylistManagement from "@/components/playlist-management";
+import VideoModeration from "@/components/video-moderation";
+import QRManagement from "@/components/qr-management";
+import AdminStats from "@/components/admin-stats";
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
@@ -81,45 +86,52 @@ export default function Admin() {
             <p className="text-gray-600 mt-2">Gerencie vídeos, estatísticas e configurações do sistema</p>
           </div>
           
-          <div className="bg-white rounded-lg shadow">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6">
-              {/* YouTube Sync Card */}
-              <div className="lg:col-span-1">
-                <div className="bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-lg border border-red-100">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                        <i className="fab fa-youtube text-red-600"></i>
-                      </div>
-                      <h3 className="font-semibold text-gray-900">YouTube</h3>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Sincronize vídeos do canal @ReparacoesHistoricasBrasil
-                  </p>
-                  <a 
-                    href="#youtube" 
-                    className="text-red-600 text-sm font-medium hover:text-red-700"
-                  >
-                    Configurar →
-                  </a>
-                </div>
-              </div>
+          <Tabs defaultValue="dashboard" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              <TabsTrigger value="moderation">Moderação</TabsTrigger>
+              <TabsTrigger value="qr">QR Codes</TabsTrigger>
+              <TabsTrigger value="playlists">Playlists</TabsTrigger>
+              <TabsTrigger value="youtube">YouTube</TabsTrigger>
+              <TabsTrigger value="stats">Estatísticas</TabsTrigger>
+            </TabsList>
 
-              {/* Quick Stats */}
-              <div className="lg:col-span-3">
+            <TabsContent value="dashboard" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
                 <AdminDashboard />
               </div>
-            </div>
-          </div>
-          
-          {/* YouTube Sync Section */}
-          <div id="youtube" className="mt-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Sincronização YouTube</h2>
-            <div className="bg-white rounded-lg shadow p-6">
-              <YouTubeSync />
-            </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="moderation" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <VideoModeration />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="qr" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <QRManagement />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="playlists" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <PlaylistManagement />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="youtube" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <YouTubeSync />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stats" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <AdminStats />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

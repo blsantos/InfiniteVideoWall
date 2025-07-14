@@ -44,6 +44,8 @@ export const chapters = pgTable("chapters", {
   description: text("description"),
   category: varchar("category", { length: 100 }),
   qrCode: text("qr_code"),
+  youtubePlaylistId: varchar("youtube_playlist_id", { length: 100 }),
+  youtubePlaylistUrl: text("youtube_playlist_url"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

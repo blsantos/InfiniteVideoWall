@@ -288,6 +288,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gerenciamento de Playlists YouTube
+  app.get('/api/youtube/playlists', async (req: any, res) => {
+    try {
+      const tokens = req.session.youtubeTokens;
+      
+      if (!tokens) {
+        return res.status(400).json({ 
+          message: 'Autorização do YouTube necessária',
+          needsAuth: true 
+        });
+      }
+
+      const playlists = await YouTubeService.listPlaylists(tokens.access_token!);
+      res.json(playlists);
+    } catch (error) {
+      console.error('Erro ao listar playlists:', error);
+      res.status(500).json({ message: 'Erro ao listar playlists' });
+    }
+  });
+
+  // Criar playlist para categoria
+  app.post('/api/youtube/playlists', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const tokens = req.session.youtubeTokens;
+      
+      if (!tokens) {
+        return res.status(400).json({ 
+          message: 'Autorização do YouTube necessária',
+          needsAuth: true 
+        });
+      }
+
+      const { title, description, category } = req.body;
+
+      const playlist = await YouTubeService.createPlaylist(
+        tokens.access_token!,
+        title,
+        description,
+        'public'
+      );
+
+      // Atualizar capítulos com a categoria correspondente
+      if (category && playlist.id) {
+        const chapters = await storage.getChapters();
+        const categoryChapters = chapters.filter(c => c.category === category);
+        
+        for (const chapter of categoryChapters) {
+          await storage.updateChapterPlaylist(
+            chapter.id, 
+            playlist.id, 
+            `https://www.youtube.com/playlist?list=${playlist.id}`
+          );
+        }
+      }
+
+      res.json(playlist);
+    } catch (error) {
+      console.error('Erro ao criar playlist:', error);
+      res.status(500).json({ message: 'Erro ao criar playlist' });
+    }
+  });
+
+  // Adicionar vídeo à playlist da categoria
+  app.post('/api/youtube/playlists/:playlistId/videos', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const tokens = req.session.youtubeTokens;
+      
+      if (!tokens) {
+        return res.status(400).json({ 
+          message: 'Autorização do YouTube necessária',
+          needsAuth: true 
+        });
+      }
+
+      const { playlistId } = req.params;
+      const { videoId } = req.body;
+
+      const result = await YouTubeService.addVideoToPlaylist(
+        tokens.access_token!,
+        playlistId,
+        videoId
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error('Erro ao adicionar vídeo à playlist:', error);
+      res.status(500).json({ message: 'Erro ao adicionar vídeo à playlist' });
+    }
+  });
+
   app.get('/api/youtube/callback', async (req, res) => {
     try {
       const { code, state } = req.query;

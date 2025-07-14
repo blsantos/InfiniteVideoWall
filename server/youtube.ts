@@ -15,7 +15,8 @@ const oauth2Client = new OAuth2Client(
 // Scopes necessários para upload
 const SCOPES = [
   'https://www.googleapis.com/auth/youtube.upload',
-  'https://www.googleapis.com/auth/youtube'
+  'https://www.googleapis.com/auth/youtube',
+  'https://www.googleapis.com/auth/youtube.readonly'
 ];
 
 export interface YouTubeUploadOptions {
@@ -224,6 +225,124 @@ export class YouTubeService {
     const maxSize = 128 * 1024 * 1024 * 1024; // 128GB
     const fileSize = fs.statSync(filePath).size;
     return fileSize <= maxSize;
+  }
+
+  /**
+   * Cria uma playlist no YouTube
+   */
+  static async createPlaylist(accessToken: string, title: string, description: string, privacyStatus: 'private' | 'unlisted' | 'public' = 'public') {
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    try {
+      const response = await youtube.playlists.insert({
+        auth: oauth2Client,
+        part: ['snippet', 'status'],
+        requestBody: {
+          snippet: {
+            title,
+            description,
+            defaultLanguage: 'pt'
+          },
+          status: {
+            privacyStatus
+          }
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao criar playlist:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lista playlists do canal
+   */
+  static async listPlaylists(accessToken: string) {
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    try {
+      const response = await youtube.playlists.list({
+        auth: oauth2Client,
+        part: ['snippet', 'status'],
+        mine: true,
+        maxResults: 50
+      });
+
+      return response.data.items || [];
+    } catch (error) {
+      console.error('Erro ao listar playlists:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Adiciona vídeo a uma playlist
+   */
+  static async addVideoToPlaylist(accessToken: string, playlistId: string, videoId: string) {
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    try {
+      const response = await youtube.playlistItems.insert({
+        auth: oauth2Client,
+        part: ['snippet'],
+        requestBody: {
+          snippet: {
+            playlistId,
+            resourceId: {
+              kind: 'youtube#video',
+              videoId
+            }
+          }
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao adicionar vídeo à playlist:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove vídeo de uma playlist
+   */
+  static async removeVideoFromPlaylist(accessToken: string, playlistItemId: string) {
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    try {
+      await youtube.playlistItems.delete({
+        auth: oauth2Client,
+        id: playlistItemId
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao remover vídeo da playlist:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Lista vídeos de uma playlist
+   */
+  static async getPlaylistVideos(accessToken: string, playlistId: string) {
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    try {
+      const response = await youtube.playlistItems.list({
+        auth: oauth2Client,
+        part: ['snippet'],
+        playlistId,
+        maxResults: 50
+      });
+
+      return response.data.items || [];
+    } catch (error) {
+      console.error('Erro ao listar vídeos da playlist:', error);
+      return [];
+    }
   }
 }
 

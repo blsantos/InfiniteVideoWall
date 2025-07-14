@@ -23,6 +23,7 @@ export interface IStorage {
   getChapter(id: number): Promise<Chapter | undefined>;
   createChapter(chapter: InsertChapter): Promise<Chapter>;
   updateChapterQRCode(id: number, qrCode: string): Promise<Chapter>;
+  updateChapterPlaylist(id: number, playlistId: string, playlistUrl: string): Promise<Chapter>;
   
   // Video operations
   getVideos(filters?: {
@@ -110,6 +111,19 @@ export class DatabaseStorage implements IStorage {
     const [chapter] = await db
       .update(chapters)
       .set({ qrCode, updatedAt: new Date() })
+      .where(eq(chapters.id, id))
+      .returning();
+    return chapter;
+  }
+
+  async updateChapterPlaylist(id: number, playlistId: string, playlistUrl: string): Promise<Chapter> {
+    const [chapter] = await db
+      .update(chapters)
+      .set({ 
+        youtubePlaylistId: playlistId,
+        youtubePlaylistUrl: playlistUrl,
+        updatedAt: new Date() 
+      })
       .where(eq(chapters.id, id))
       .returning();
     return chapter;
