@@ -247,6 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const youtubeVideos = await YouTubeService.listChannelVideosByChannelId(channelId);
       let syncedCount = 0;
+      let skippedCount = 0;
 
       for (const ytVideo of youtubeVideos.items || []) {
         // Extrair o videoId correto do objeto
@@ -257,7 +258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           continue;
         }
         
-        // Verificar se o vídeo já existe no banco
+        // Verificar se o vídeo já existe no banco (busca exata por youtube_id)
         const existingVideos = await storage.getVideos({ search: videoId });
         
         if (existingVideos.length === 0) {
@@ -277,13 +278,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
           syncedCount++;
           console.log(`Vídeo sincronizado: ${videoId} - ${ytVideo.snippet?.title}`);
+        } else {
+          skippedCount++;
+          console.log(`Vídeo já existe: ${videoId} - ${ytVideo.snippet?.title}`);
         }
       }
 
       res.json({ 
-        message: `${syncedCount} vídeos sincronizados com sucesso do canal @ReparacoesHistoricasBrasil`,
+        message: `${syncedCount} vídeos sincronizados, ${skippedCount} já existiam`,
         totalVideos: youtubeVideos.items?.length || 0,
         syncedVideos: syncedCount,
+        skippedVideos: skippedCount,
         channelId: channelId
       });
     } catch (error) {

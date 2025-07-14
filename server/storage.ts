@@ -163,7 +163,8 @@ export class DatabaseStorage implements IStorage {
         sql`${videos.title} ILIKE ${`%${filters.search}%`}`,
         sql`${videos.city} ILIKE ${`%${filters.search}%`}`,
         sql`${videos.racismType} ILIKE ${`%${filters.search}%`}`,
-        sql`${videos.authorName} ILIKE ${`%${filters.search}%`}`
+        sql`${videos.authorName} ILIKE ${`%${filters.search}%`}`,
+        eq(videos.youtubeId, filters.search)
       ));
     }
 
