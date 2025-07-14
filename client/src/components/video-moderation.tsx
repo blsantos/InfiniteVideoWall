@@ -28,6 +28,13 @@ export default function VideoModeration() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
+  const { data: videos, isLoading: videosLoading, error } = useQuery<Video[]>({
+    queryKey: ['/api/admin/videos', filters],
+    retry: false,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+  });
+
   // Verificar erro de autorização
   useEffect(() => {
     if (error && isUnauthorizedError(error as Error)) {
@@ -42,13 +49,6 @@ export default function VideoModeration() {
       }, 2000);
     }
   }, [error, toast]);
-
-  const { data: videos, isLoading: videosLoading, error } = useQuery<Video[]>({
-    queryKey: ['/api/admin/videos', filters],
-    retry: false,
-    staleTime: 0,
-    refetchOnWindowFocus: false,
-  });
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status, rejectionReason }: { id: number; status: string; rejectionReason?: string }) => {
