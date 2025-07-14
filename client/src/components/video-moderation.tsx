@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,8 +28,23 @@ export default function VideoModeration() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  const { data: videos, isLoading: videosLoading, refetch } = useQuery<Video[]>({
+  // Verificar erro de autorização
+  useEffect(() => {
+    if (error && isUnauthorizedError(error as Error)) {
+      toast({
+        title: "Acesso não autorizado",
+        description: "Você precisa fazer login como administrador. Redirecionando...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 2000);
+    }
+  }, [error, toast]);
+
+  const { data: videos, isLoading: videosLoading } = useQuery<Video[]>({
     queryKey: ['/api/admin/videos', filters],
+    retry: false,
   });
 
   const updateStatusMutation = useMutation({
