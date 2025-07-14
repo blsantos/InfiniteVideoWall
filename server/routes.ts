@@ -287,23 +287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/videos/:id/status', isAuthenticated, async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      const id = parseInt(req.params.id);
-      const update = updateVideoStatusSchema.parse(req.body);
-      
-      const video = await storage.updateVideoStatus(id, update, user.id);
-      res.json(video);
-    } catch (error) {
-      console.error("Error updating video status:", error);
-      res.status(500).json({ message: "Failed to update video status" });
-    }
-  });
+  // Remover rota duplicada - usar apenas /api/admin/videos/:id/status
 
   app.delete('/api/videos/:id', isAuthenticated, async (req: any, res) => {
     try {

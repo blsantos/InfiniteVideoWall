@@ -3,29 +3,22 @@
 ## Para onde os vídeos são enviados
 
 ### Canal de Destino
-Os vídeos são enviados para o **canal YouTube da pessoa que fizer a autorização** OAuth2.
+Os vídeos são enviados para o canal **@ReparacoesHistoricasBrasil**.
 
 **Como funciona:**
 1. Usuário clica em "Autorizar YouTube"
 2. Sistema redireciona para Google OAuth
-3. Usuário faz login na **sua própria conta YouTube**
-4. Vídeos são enviados para **esse canal específico**
+3. Usuário faz login na conta **@ReparacoesHistoricasBrasil**
+4. Vídeos são enviados para esse canal oficial
 
 ### Configuração Recomendada
 
-#### Opção 1: Canal Dedicado (Recomendado)
+#### Canal Configurado: @ReparacoesHistoricasBrasil
 ```
-1. Criar conta específica: videos@reparacoeshistoricas.org
-2. Criar canal YouTube: "Reparações Históricas - Relatos"
-3. Configurar como canal oficial do projeto
-4. Usar essas credenciais para autorização
-```
-
-#### Opção 2: Canal Existente
-```
-1. Usar canal existente do projeto
-2. Autorizar com a conta principal
-3. Todos os vídeos vão para esse canal
+✅ Canal oficial já existe
+✅ URL: https://youtube.com/@ReparacoesHistoricasBrasil
+✅ Todos os vídeos são enviados para este canal
+✅ Configuração OAuth2 deve usar as credenciais desta conta
 ```
 
 ### Status de Privacidade dos Vídeos

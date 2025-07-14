@@ -52,6 +52,9 @@ export default function VideoModeration() {
       return await apiRequest(`/api/admin/videos/${id}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status, rejectionReason }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
     },
     onSuccess: () => {
