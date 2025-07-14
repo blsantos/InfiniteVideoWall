@@ -155,10 +155,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // YouTube OAuth routes
-  app.get('/api/youtube/auth', (req, res) => {
-    const state = JSON.stringify({ userId: req.query.userId || null });
+  app.get('/api/youtube/auth', (req: any, res) => {
+    const state = 'youtube_auth_' + Date.now();
+    req.session.youtubeAuthState = state;
     const authUrl = YouTubeService.getAuthUrl(state);
     res.json({ authUrl });
+  });
+
+  // YouTube callback - processar retorno da autorização
+  app.get('/api/youtube/callback', async (req: any, res) => {
+    try {
+      const { code, state, error } = req.query;
+      
+      if (error) {
+        console.error('Erro na autorização YouTube:', error);
+        return res.redirect('/admin?youtube_error=' + encodeURIComponent(error));
+      }
+      
+      if (!code) {
+        return res.redirect('/admin?youtube_error=no_code');
+      }
+      
+      console.log('YouTube callback recebido com código:', code.substring(0, 10) + '...');
+      
+      // Trocar código por tokens
+      const tokens = await YouTubeService.getTokensFromCode(code);
+      console.log('Tokens obtidos com sucesso');
+      
+      // Salvar tokens na sessão
+      req.session.youtubeTokens = tokens;
+      
+      // Redirecionar para o admin com sucesso
+      res.redirect('/admin?youtube_success=true');
+      
+    } catch (error: any) {
+      console.error('Erro no callback YouTube:', error);
+      res.redirect('/admin?youtube_error=' + encodeURIComponent(error.message));
+    }
   });
 
   // Verificar informações do canal YouTube

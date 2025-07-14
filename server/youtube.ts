@@ -32,10 +32,18 @@ export class YouTubeService {
    * Gera URL de autorização OAuth2
    */
   static getAuthUrl(state?: string): string {
+    // Configurar redirect URI baseado no ambiente
+    const baseUrl = process.env.REPLIT_DOMAINS 
+      ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}`
+      : 'http://localhost:5000';
+    
+    oauth2Client.redirectUri = `${baseUrl}/api/youtube/callback`;
+    
     return oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: SCOPES,
-      state: state,
+      state: state || 'youtube_auth',
+      prompt: 'consent',
       include_granted_scopes: true
     });
   }

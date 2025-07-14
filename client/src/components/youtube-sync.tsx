@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -11,6 +11,32 @@ export default function YouTubeSync() {
   const { toast } = useToast();
   const [authStatus, setAuthStatus] = useState<'checking' | 'authorized' | 'unauthorized'>('checking');
   const [channelInfo, setChannelInfo] = useState<any>(null);
+
+  // Verificar status ao carregar
+  useEffect(() => {
+    checkAuthMutation.mutate();
+    
+    // Verificar se retornou do OAuth
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('youtube_success')) {
+      toast({
+        title: "YouTube conectado!",
+        description: "Autorização realizada com sucesso",
+      });
+      // Limpar parâmetro da URL
+      window.history.replaceState({}, '', '/admin');
+      // Verificar novamente o status
+      setTimeout(() => checkAuthMutation.mutate(), 1000);
+    }
+    if (urlParams.get('youtube_error')) {
+      toast({
+        title: "Erro na autorização",
+        description: urlParams.get('youtube_error') || "Erro desconhecido",
+        variant: "destructive",
+      });
+      window.history.replaceState({}, '', '/admin');
+    }
+  }, []);
 
   // Verificar status de autorização
   const checkAuthMutation = useMutation({
@@ -31,11 +57,7 @@ export default function YouTubeSync() {
     },
     onError: (error: any) => {
       setAuthStatus('unauthorized');
-      toast({
-        title: "Erro ao verificar autorização",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.log("Não autorizado, precisa conectar ao YouTube");
     },
   });
 
