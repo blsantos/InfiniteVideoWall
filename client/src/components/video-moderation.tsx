@@ -31,6 +31,7 @@ export default function VideoModeration() {
   // Verificar erro de autorização
   useEffect(() => {
     if (error && isUnauthorizedError(error as Error)) {
+      console.error("Erro de autorização:", error);
       toast({
         title: "Acesso não autorizado",
         description: "Você precisa fazer login como administrador. Redirecionando...",
@@ -45,6 +46,8 @@ export default function VideoModeration() {
   const { data: videos, isLoading: videosLoading, error } = useQuery<Video[]>({
     queryKey: ['/api/admin/videos', filters],
     retry: false,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
   });
 
   const updateStatusMutation = useMutation({
@@ -141,6 +144,23 @@ export default function VideoModeration() {
             </CardContent>
           </Card>
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 space-y-4">
+        <div className="text-red-600 font-semibold">Erro ao carregar vídeos</div>
+        <div className="text-sm text-gray-600">
+          {isUnauthorizedError(error as Error) ? 
+            "Você precisa fazer login como administrador" : 
+            "Erro interno do servidor"
+          }
+        </div>
+        <Button onClick={() => window.location.reload()} variant="outline">
+          Tentar novamente
+        </Button>
       </div>
     );
   }
