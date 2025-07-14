@@ -249,18 +249,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let syncedCount = 0;
 
       for (const ytVideo of youtubeVideos.items || []) {
+        // Extrair o videoId correto do objeto
+        const videoId = ytVideo.id?.videoId || ytVideo.id;
+        
+        if (!videoId || typeof videoId !== 'string') {
+          console.log('ID de vídeo inválido:', ytVideo.id);
+          continue;
+        }
+        
         // Verificar se o vídeo já existe no banco
-        const existingVideos = await storage.getVideos({ search: ytVideo.id });
+        const existingVideos = await storage.getVideos({ search: videoId });
         
         if (existingVideos.length === 0) {
           // Criar novo vídeo no banco com dados básicos
           const newVideo = await storage.createVideo({
-            youtubeId: ytVideo.id,
-            youtubeUrl: `https://www.youtube.com/watch?v=${ytVideo.id}`,
-            title: ytVideo.snippet.title,
+            youtubeId: videoId,
+            youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+            title: ytVideo.snippet?.title || 'Título não disponível',
             ageRange: "Não informado",
             gender: "Não informado",
-            city: "Não informado",
+            city: "Não informado", 
             state: "Não informado",
             country: "Brasil",
             skinTone: "Não informado",
@@ -268,6 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             status: "approved" // Assumir aprovado se já está no canal
           });
           syncedCount++;
+          console.log(`Vídeo sincronizado: ${videoId} - ${ytVideo.snippet?.title}`);
         }
       }
 
@@ -400,6 +409,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Erro ao adicionar vídeo à playlist:', error);
       res.status(500).json({ message: 'Erro ao adicionar vídeo à playlist' });
+    }
+  });
+
+  // Limpar vídeos inválidos
+  app.post('/api/youtube/cleanup-invalid', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Buscar vídeos com problemas
+      const allVideos = await storage.getVideos({});
+      let deletedCount = 0;
+
+      for (const video of allVideos) {
+        const hasInvalidId = !video.youtubeId || 
+                            typeof video.youtubeId !== 'string' || 
+                            video.youtubeId.includes('kind') ||
+                            video.youtubeId.includes('{');
+        
+        const hasInvalidUrl = !video.youtubeUrl || 
+                             video.youtubeUrl.includes('[object Object]');
+
+        if (hasInvalidId || hasInvalidUrl) {
+          await storage.deleteVideo(video.id);
+          deletedCount++;
+        }
+      }
+
+      res.json({ 
+        message: `${deletedCount} vídeos inválidos removidos`,
+        deletedCount
+      });
+    } catch (error) {
+      console.error('Erro ao limpar vídeos:', error);
+      res.status(500).json({ message: 'Erro ao limpar vídeos' });
     }
   });
 

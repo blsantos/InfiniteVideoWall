@@ -10,6 +10,7 @@ import PlaylistManagement from "@/components/playlist-management";
 import VideoModeration from "@/components/video-moderation";
 import QRManagement from "@/components/qr-management";
 import AdminStats from "@/components/admin-stats";
+import YouTubeDebug from "@/components/youtube-debug";
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
@@ -87,12 +88,13 @@ export default function Admin() {
           </div>
           
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="moderation">Moderação</TabsTrigger>
               <TabsTrigger value="qr">QR Codes</TabsTrigger>
               <TabsTrigger value="playlists">Playlists</TabsTrigger>
               <TabsTrigger value="youtube">YouTube</TabsTrigger>
+              <TabsTrigger value="debug">Debug</TabsTrigger>
               <TabsTrigger value="stats">Estatísticas</TabsTrigger>
             </TabsList>
 
@@ -123,6 +125,12 @@ export default function Admin() {
             <TabsContent value="youtube" className="space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
                 <YouTubeSync />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="debug" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <YouTubeDebug />
               </div>
             </TabsContent>
 
