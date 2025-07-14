@@ -183,10 +183,14 @@ export class YouTubeService {
         order: 'date'
       });
 
-      return response.data.items || [];
+      return {
+        items: response.data.items || []
+      };
     } catch (error) {
       console.error('Erro ao listar vídeos:', error);
-      return [];
+      return {
+        items: []
+      };
     }
   }
 

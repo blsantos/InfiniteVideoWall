@@ -181,6 +181,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Listar vídeos do canal YouTube
+  app.get('/api/youtube/videos', async (req: any, res) => {
+    try {
+      const tokens = req.session.youtubeTokens;
+      
+      if (!tokens) {
+        return res.status(400).json({ 
+          message: 'Autorização do YouTube necessária',
+          needsAuth: true 
+        });
+      }
+
+      const videos = await YouTubeService.listChannelVideos(tokens.access_token!);
+      res.json(videos);
+    } catch (error) {
+      console.error('Erro ao listar vídeos do canal:', error);
+      res.status(500).json({ message: 'Erro ao listar vídeos do canal' });
+    }
+  });
+
+  // Sincronizar vídeos do YouTube com o banco de dados
+  app.post('/api/youtube/sync', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const tokens = req.session.youtubeTokens;
+      
+      if (!tokens) {
+        return res.status(400).json({ 
+          message: 'Autorização do YouTube necessária',
+          needsAuth: true 
+        });
+      }
+
+      const youtubeVideos = await YouTubeService.listChannelVideos(tokens.access_token!);
+      let syncedCount = 0;
+
+      for (const ytVideo of youtubeVideos.items || []) {
+        // Verificar se o vídeo já existe no banco
+        const existingVideos = await storage.getVideos({ search: ytVideo.id });
+        
+        if (existingVideos.length === 0) {
+          // Criar novo vídeo no banco com dados básicos
+          await storage.createVideo({
+            youtubeId: ytVideo.id,
+            youtubeUrl: `https://www.youtube.com/watch?v=${ytVideo.id}`,
+            title: ytVideo.snippet.title,
+            ageRange: "Não informado",
+            gender: "Não informado",
+            city: "Não informado",
+            state: "Não informado",
+            country: "Brasil",
+            skinTone: "Não informado",
+            racismType: "Outro",
+            status: "approved" // Assumir aprovado se já está no canal
+          });
+          syncedCount++;
+        }
+      }
+
+      res.json({ 
+        message: `${syncedCount} vídeos sincronizados com sucesso`,
+        totalVideos: youtubeVideos.items?.length || 0,
+        syncedVideos: syncedCount
+      });
+    } catch (error) {
+      console.error('Erro ao sincronizar vídeos:', error);
+      res.status(500).json({ message: 'Erro ao sincronizar vídeos' });
+    }
+  });
+
   app.get('/api/youtube/callback', async (req, res) => {
     try {
       const { code, state } = req.query;
