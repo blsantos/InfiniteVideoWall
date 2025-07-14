@@ -193,4 +193,16 @@ Changelog:
 - Produção: https://reparacoeshistoricas.org/api/youtube/callback
 - Local: http://localhost:5000/api/youtube/callback
 
-**Status:** Sistema sincroniza vídeos existentes do canal @ReparacoesHistoricasBrasil
+**Usuários de Teste (Google Console):**
+- Adicionar: contact@b2santos.fr como usuário de teste
+- Status: App em modo de teste, requer usuários autorizados
+
+**Canal YouTube:**
+- Nome: @ReparacoesHistoricasBrasil
+- Channel ID: UCzpIDynWSNfGx4djJS_DFiQ
+- URL: https://www.youtube.com/channel/UCzpIDynWSNfGx4djJS_DFiQ
+
+**Funcionalidades:**
+- Sincronização: Funciona com API pública (sem OAuth)
+- Upload: Requer OAuth completo (usuário autorizado)
+- Playlists: Sistema de categorização implementado

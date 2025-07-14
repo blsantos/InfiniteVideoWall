@@ -38,6 +38,24 @@ export default function YouTubeSync() {
     }
   }, []);
 
+  // Verificar canal público
+  const checkPublicChannelMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/youtube/channel-public');
+      if (!response.ok) {
+        throw new Error('Erro ao verificar canal público');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setChannelInfo(data);
+      setAuthStatus('authorized'); // Considerar como autorizado para funções públicas
+    },
+    onError: () => {
+      setAuthStatus('unauthorized');
+    },
+  });
+
   // Verificar status de autorização
   const checkAuthMutation = useMutation({
     mutationFn: async () => {
@@ -162,6 +180,16 @@ export default function YouTubeSync() {
                 Verificar
               </Button>
               
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => checkPublicChannelMutation.mutate()}
+                disabled={checkPublicChannelMutation.isPending}
+              >
+                <Youtube className="h-4 w-4 mr-2" />
+                Verificar Canal
+              </Button>
+              
               {authStatus === 'unauthorized' && (
                 <Button 
                   onClick={() => authorizeMutation.mutate()}
@@ -169,7 +197,7 @@ export default function YouTubeSync() {
                   size="sm"
                 >
                   <Youtube className="h-4 w-4 mr-2" />
-                  Autorizar
+                  Autorizar (Upload)
                 </Button>
               )}
             </div>
@@ -191,16 +219,16 @@ export default function YouTubeSync() {
           <div className="flex items-center justify-between p-4 border border-orange-200 bg-orange-50 rounded-lg">
             <div>
               <h4 className="font-medium text-orange-800">
-                Sincronizar Vídeos do Canal
+                Sincronizar Vídeos do Canal @ReparacoesHistoricasBrasil
               </h4>
               <p className="text-sm text-orange-700 mt-1">
-                Importa vídeos existentes do canal YouTube para o sistema
+                Importa vídeos existentes do canal público para o sistema (UCzpIDynWSNfGx4djJS_DFiQ)
               </p>
             </div>
             
             <Button 
               onClick={() => syncMutation.mutate()}
-              disabled={authStatus !== 'authorized' || syncMutation.isPending}
+              disabled={syncMutation.isPending}
               className="bg-orange-600 hover:bg-orange-700"
             >
               {syncMutation.isPending ? (
@@ -219,13 +247,25 @@ export default function YouTubeSync() {
 
           {/* Instruções */}
           <div className="p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium text-blue-800 mb-2">Como funciona</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• <strong>Autorizar:</strong> Conecta com sua conta Google/YouTube</li>
-              <li>• <strong>Sincronizar:</strong> Importa vídeos existentes do canal</li>
-              <li>• <strong>Automático:</strong> Novos uploads vão direto para o canal</li>
-              <li>• <strong>Moderação:</strong> Vídeos sincronizados aparecem como "aprovados"</li>
-            </ul>
+            <h4 className="font-medium text-blue-800 mb-2">Sobre a Autorização</h4>
+            <div className="text-sm text-blue-700 space-y-2">
+              <p><strong>Erro 403:</strong> O app está em modo de teste no Google Console</p>
+              <p><strong>Solução:</strong> Adicionar email contact@b2santos.fr como usuário teste</p>
+              <p><strong>Sincronização:</strong> Funciona sem autorização usando API pública</p>
+              <p><strong>Upload:</strong> Requer autorização OAuth completa</p>
+              <div className="mt-3 p-2 bg-blue-100 rounded">
+                <p className="font-medium">Canal: @ReparacoesHistoricasBrasil</p>
+                <p>ID: UCzpIDynWSNfGx4djJS_DFiQ</p>
+                <a 
+                  href="https://www.youtube.com/channel/UCzpIDynWSNfGx4djJS_DFiQ" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Ver Canal →
+                </a>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

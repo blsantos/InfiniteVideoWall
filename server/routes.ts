@@ -234,7 +234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Sincronizar vídeos do YouTube com o banco de dados
+  // Sincronizar vídeos do YouTube com o banco de dados (usando Channel ID público)
   app.post('/api/youtube/sync', isAuthenticated, async (req: any, res) => {
     try {
       const user = await storage.getUser(req.user.claims.sub);
@@ -242,16 +242,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const tokens = req.session.youtubeTokens;
+      // Usar Channel ID público do canal @ReparacoesHistoricasBrasil
+      const channelId = 'UCzpIDynWSNfGx4djJS_DFiQ';
       
-      if (!tokens) {
-        return res.status(400).json({ 
-          message: 'Autorização do YouTube necessária',
-          needsAuth: true 
-        });
-      }
-
-      const youtubeVideos = await YouTubeService.listChannelVideos(tokens.access_token!);
+      const youtubeVideos = await YouTubeService.listChannelVideosByChannelId(channelId);
       let syncedCount = 0;
 
       for (const ytVideo of youtubeVideos.items || []) {
@@ -260,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (existingVideos.length === 0) {
           // Criar novo vídeo no banco com dados básicos
-          await storage.createVideo({
+          const newVideo = await storage.createVideo({
             youtubeId: ytVideo.id,
             youtubeUrl: `https://www.youtube.com/watch?v=${ytVideo.id}`,
             title: ytVideo.snippet.title,
@@ -278,13 +272,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({ 
-        message: `${syncedCount} vídeos sincronizados com sucesso`,
+        message: `${syncedCount} vídeos sincronizados com sucesso do canal @ReparacoesHistoricasBrasil`,
         totalVideos: youtubeVideos.items?.length || 0,
-        syncedVideos: syncedCount
+        syncedVideos: syncedCount,
+        channelId: channelId
       });
     } catch (error) {
       console.error('Erro ao sincronizar vídeos:', error);
       res.status(500).json({ message: 'Erro ao sincronizar vídeos' });
+    }
+  });
+
+  // Verificar informações do canal público
+  app.get('/api/youtube/channel-public', async (req, res) => {
+    try {
+      const channelId = 'UCzpIDynWSNfGx4djJS_DFiQ';
+      const channelInfo = await YouTubeService.getChannelInfoById(channelId);
+      
+      if (!channelInfo) {
+        return res.status(404).json({ message: 'Canal não encontrado' });
+      }
+
+      res.json({
+        ...channelInfo,
+        channelUrl: `https://www.youtube.com/channel/${channelId}`
+      });
+    } catch (error) {
+      console.error('Erro ao obter informações do canal público:', error);
+      res.status(500).json({ message: 'Erro ao obter informações do canal' });
     }
   });
 

@@ -181,6 +181,31 @@ export class YouTubeService {
   }
 
   /**
+   * Lista vídeos do canal por Channel ID (público, sem autenticação)
+   */
+  static async listChannelVideosByChannelId(channelId: string, maxResults = 50) {
+    try {
+      const response = await youtube.search.list({
+        key: process.env.YOUTUBE_API_KEY,
+        part: ['snippet'],
+        channelId: channelId,
+        type: ['video'],
+        maxResults,
+        order: 'date'
+      });
+
+      return {
+        items: response.data.items || []
+      };
+    } catch (error) {
+      console.error('Erro ao listar vídeos do canal:', error);
+      return {
+        items: []
+      };
+    }
+  }
+
+  /**
    * Lista vídeos do canal autenticado
    */
   static async listChannelVideos(accessToken: string, maxResults = 50) {
@@ -206,6 +231,24 @@ export class YouTubeService {
       return {
         items: []
       };
+    }
+  }
+
+  /**
+   * Obtém informações do canal por Channel ID (público)
+   */
+  static async getChannelInfoById(channelId: string) {
+    try {
+      const response = await youtube.channels.list({
+        key: process.env.YOUTUBE_API_KEY,
+        part: ['snippet', 'statistics'],
+        id: [channelId]
+      });
+
+      return response.data.items?.[0] || null;
+    } catch (error) {
+      console.error('Erro ao obter informações do canal:', error);
+      throw error;
     }
   }
 
