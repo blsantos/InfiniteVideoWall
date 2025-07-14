@@ -33,9 +33,15 @@ export class YouTubeService {
    */
   static getAuthUrl(state?: string): string {
     // Configurar redirect URI baseado no ambiente
-    const baseUrl = process.env.REPLIT_DOMAINS 
-      ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}`
-      : 'http://localhost:5000';
+    let baseUrl;
+    
+    if (process.env.NODE_ENV === 'production') {
+      baseUrl = 'https://reparacoeshistoricas.org';
+    } else if (process.env.REPLIT_DOMAINS) {
+      baseUrl = `https://${process.env.REPLIT_DOMAINS.split(',')[0]}`;
+    } else {
+      baseUrl = 'http://localhost:5000';
+    }
     
     oauth2Client.redirectUri = `${baseUrl}/api/youtube/callback`;
     

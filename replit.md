@@ -182,6 +182,15 @@ Changelog:
 - APIs testadas e operacionais
 - Integração YouTube API implementada
 - Upload direto para YouTube funcionando
+- Autorização OAuth2 configurada para teste e produção
 - Documentação de integração completa
 - Códigos WordPress prontos para uso
 - Guias de deployment para Hostinger
+
+### Configuração YouTube OAuth
+**URLs de Redirecionamento necessárias no Google Console:**
+- Teste: https://[replit-domain]/api/youtube/callback
+- Produção: https://reparacoeshistoricas.org/api/youtube/callback
+- Local: http://localhost:5000/api/youtube/callback
+
+**Status:** Sistema sincroniza vídeos existentes do canal @ReparacoesHistoricasBrasil
