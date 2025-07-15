@@ -28,8 +28,8 @@ wp-content/plugins/youtube-video-wall/
 - Produção: `https://reparacoeshistoricas.org`
 
 **Canal YouTube:**
-- Nome: @ReparacoesHistoricasBrasil
-- Channel ID: UCzpIDynWSNfGx4djJS_DFiQ
+- Nome: @ReparacoesHistoricas
+- Channel ID: UCRMRvNncp4fFy-27JD4Ph2w
 
 ### 3. Usando os Shortcodes
 
@@ -61,7 +61,7 @@ get_header(); ?>
 
 <div class="container">
     <h1>Testemunhos sobre Racismo</h1>
-    <p>Vídeos reais do canal @ReparacoesHistoricasBrasil</p>
+    <p>Vídeos reais do canal @ReparacoesHistoricas</p>
     
     <?php echo do_shortcode('[youtube_video_wall limit="12" responsive="true"]'); ?>
 </div>

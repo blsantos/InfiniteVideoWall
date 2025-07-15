@@ -239,8 +239,8 @@ function youtube_video_wall_admin_page() {
         <pre><code>[youtube_video_wall chapter="1" limit="6" responsive="true"]</code></pre>
         
         <h3>Status da Integração:</h3>
-        <p>Canal: <strong>@ReparacoesHistoricasBrasil</strong></p>
-        <p>Channel ID: <strong>UCzpIDynWSNfGx4djJS_DFiQ</strong></p>
+        <p>Canal: <strong>@ReparacoesHistoricas</strong></p>
+        <p>Channel ID: <strong>UCRMRvNncp4fFy-27JD4Ph2w</strong></p>
         <p>API URL: <strong>https://883149f1-1c75-46d3-8a00-b3d17d4dda1d-00-zh6zir2txvr9.worf.replit.dev</strong></p>
         
         <h3>QR Codes para Capítulos:</h3>

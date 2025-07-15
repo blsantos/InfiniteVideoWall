@@ -302,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Verificar informações do canal público
   app.get('/api/youtube/channel-public', async (req, res) => {
     try {
-      const channelId = 'UCzpIDynWSNfGx4djJS_DFiQ';
+      const channelId = YOUTUBE_CONFIG.CHANNEL_ID;
       const channelInfo = await YouTubeService.getChannelInfoById(channelId);
       
       if (!channelInfo) {

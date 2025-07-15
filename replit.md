@@ -203,9 +203,9 @@ Changelog:
 5. Verificar se Client ID e Secret estão corretos
 
 **Canal YouTube:**
-- Nome: @ReparacoesHistoricasBrasil
-- Channel ID: UCzpIDynWSNfGx4djJS_DFiQ
-- URL: https://www.youtube.com/channel/UCzpIDynWSNfGx4djJS_DFiQ
+- Nome: @ReparacoesHistoricas (NOVO CANAL)
+- Channel ID: UCRMRvNncp4fFy-27JD4Ph2w
+- URL: https://www.youtube.com/channel/UCRMRvNncp4fFy-27JD4Ph2w
 
 **Status Atual:**
 - Sincronização: Funciona com API pública (sem OAuth)

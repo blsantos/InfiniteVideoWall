@@ -4,10 +4,10 @@
  */
 
 export const YOUTUBE_CONFIG = {
-  // Canal atual - ATUALIZAR QUANDO TROCAR O CANAL
-  CHANNEL_ID: process.env.YOUTUBE_CHANNEL_ID || 'UCzpIDynWSNfGx4djJS_DFiQ',
-  CHANNEL_NAME: '@ReparacoesHistoricasBrasil',
-  CHANNEL_URL: 'https://www.youtube.com/channel/UCzpIDynWSNfGx4djJS_DFiQ',
+  // Canal atual - ATUALIZADO PARA NOVO CANAL
+  CHANNEL_ID: process.env.YOUTUBE_CHANNEL_ID || 'UCRMRvNncp4fFy-27JD4Ph2w',
+  CHANNEL_NAME: '@ReparacoesHistoricas',
+  CHANNEL_URL: 'https://www.youtube.com/channel/UCRMRvNncp4fFy-27JD4Ph2w',
   
   // OAuth2 Configuration
   CLIENT_ID: process.env.YOUTUBE_CLIENT_ID!,
