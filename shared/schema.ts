@@ -80,6 +80,9 @@ export const videos = pgTable("videos", {
   moderatedBy: varchar("moderated_by").references(() => users.id),
   moderatedAt: timestamp("moderated_at"),
   
+  // File handling for direct uploads
+  filePath: varchar("file_path"), // Local file path for admin processing
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

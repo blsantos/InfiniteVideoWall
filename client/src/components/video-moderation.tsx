@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle, XCircle, Eye, Filter, Search } from "lucide-react";
+import { CheckCircle, XCircle, Eye, Filter, Search, Youtube } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { Video } from "@shared/schema";
@@ -104,6 +104,37 @@ export default function VideoModeration() {
     }
     updateStatusMutation.mutate({ id, status: 'rejected', rejectionReason: reason });
   };
+
+  const uploadToYoutubeMutation = useMutation({
+    mutationFn: async (videoId: number) => {
+      const response = await apiRequest(`/api/admin/videos/${videoId}/upload-youtube`, {
+        method: 'POST'
+      });
+      return response;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/videos'] });
+      toast({
+        title: "Upload realizado!",
+        description: `Vídeo enviado ao YouTube com sucesso!`,
+      });
+    },
+    onError: (error: any) => {
+      if (error.message?.includes('Autorização do YouTube necessária')) {
+        toast({
+          title: "Autorização necessária",
+          description: "É preciso autorizar o YouTube na aba Debug primeiro.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro no upload",
+          description: error.message || "Erro ao enviar vídeo para o YouTube",
+          variant: "destructive",
+        });
+      }
+    },
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -318,6 +349,27 @@ export default function VideoModeration() {
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
+                        </div>
+                      )}
+
+                      {video.status === 'approved' && !video.youtubeId && (
+                        <Button
+                          size="sm"
+                          onClick={() => uploadToYoutubeMutation.mutate(video.id)}
+                          disabled={uploadToYoutubeMutation.isPending}
+                          className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          <Youtube className="h-4 w-4 mr-1" />
+                          {uploadToYoutubeMutation.isPending ? 'Enviando...' : 'Enviar ao YouTube'}
+                        </Button>
+                      )}
+
+                      {video.status === 'approved' && video.youtubeId && (
+                        <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
+                          <strong>✓ No YouTube:</strong> 
+                          <a href={video.youtubeUrl} target="_blank" rel="noopener noreferrer" className="underline ml-1">
+                            Ver vídeo
+                          </a>
                         </div>
                       )}
 

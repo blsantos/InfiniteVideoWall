@@ -27,26 +27,7 @@ type UploadFormData = z.infer<typeof uploadFormSchema>;
 export default function UploadForm() {
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
-  const [youtubeAuth, setYoutubeAuth] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-
-  // Verificar se YouTube foi autorizado via URL
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('youtube') === 'success') {
-      setYoutubeAuth('success');
-      toast({
-        title: "YouTube Autorizado",
-        description: "Agora você pode fazer upload de vídeos diretamente para o YouTube!",
-      });
-    } else if (urlParams.get('youtube') === 'error') {
-      toast({
-        title: "Erro na Autorização",
-        description: "Houve um problema ao autorizar o YouTube. Tente novamente.",
-        variant: "destructive",
-      });
-    }
-  }, [toast]);
 
   const form = useForm<UploadFormData>({
     resolver: zodResolver(uploadFormSchema),
@@ -85,48 +66,24 @@ export default function UploadForm() {
       return response.json();
     },
     onSuccess: (response: any) => {
-      const message = response.youtubeUploaded 
-        ? "Vídeo enviado com sucesso para o YouTube e nossa plataforma!"
-        : "Vídeo enviado com sucesso e está aguardando moderação.";
-      
       toast({
-        title: "Upload Realizado!",
-        description: message,
+        title: "Testemunho Enviado!",
+        description: "Seu vídeo foi enviado com sucesso e está aguardando moderação. Obrigado por compartilhar sua experiência!",
       });
       form.reset();
       setUploadProgress(0);
     },
     onError: (error: any) => {
-      if (error.message.includes('Autorização do YouTube')) {
-        toast({
-          title: "Autorização Necessária",
-          description: "Clique no botão 'Autorizar YouTube' para fazer upload direto.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Erro ao enviar vídeo",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Erro ao enviar vídeo",
+        description: error.message || "Tente novamente em alguns minutos.",
+        variant: "destructive",
+      });
       setUploadProgress(0);
     },
   });
 
-  const authorizeYoutube = async () => {
-    try {
-      const response = await fetch('/api/youtube/auth');
-      const data = await response.json();
-      window.location.href = data.authUrl;
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível iniciar autorização do YouTube",
-        variant: "destructive",
-      });
-    }
-  };
+  // Usuários normais não precisam de autorização YouTube - upload direto
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();

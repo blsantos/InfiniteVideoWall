@@ -477,84 +477,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Upload de vídeo com integração YouTube
+  // Upload de vídeo - USUÁRIOS NORMAIS (SEM OAUTH)
   app.post('/api/videos', upload.single('video'), async (req: any, res) => {
     try {
       const videoData = insertVideoSchema.parse(req.body);
-      let youtubeVideoId = null;
-      let youtubeUrl = null;
 
-      // Se há arquivo de vídeo, fazer upload para YouTube
+      // Validar arquivo se enviado
       if (req.file) {
-        const tokens = req.session.youtubeTokens;
+        // Validar formato
+        if (!YouTubeService.validateVideoFormat(req.file.path)) {
+          fs.unlinkSync(req.file.path); // Limpar arquivo
+          return res.status(400).json({ message: 'Formato de vídeo não suportado' });
+        }
+
+        if (!YouTubeService.validateFileSize(req.file.path)) {
+          fs.unlinkSync(req.file.path); // Limpar arquivo
+          return res.status(400).json({ message: 'Arquivo muito grande (máximo 2GB)' });
+        }
+
+        // Mover arquivo para diretório permanente para processamento posterior
+        const permanentDir = 'uploads/pending';
+        if (!fs.existsSync(permanentDir)) {
+          fs.mkdirSync(permanentDir, { recursive: true });
+        }
         
-        if (!tokens) {
-          return res.status(400).json({ 
-            message: 'Autorização do YouTube necessária',
-            needsAuth: true,
-            authUrl: YouTubeService.getAuthUrl()
-          });
-        }
-
-        try {
-          // Validar arquivo
-          if (!YouTubeService.validateVideoFormat(req.file.path)) {
-            fs.unlinkSync(req.file.path); // Limpar arquivo
-            return res.status(400).json({ message: 'Formato de vídeo não suportado' });
-          }
-
-          if (!YouTubeService.validateFileSize(req.file.path)) {
-            fs.unlinkSync(req.file.path); // Limpar arquivo
-            return res.status(400).json({ message: 'Arquivo muito grande (máximo 2GB)' });
-          }
-
-          // Fazer upload para YouTube
-          const uploadResult = await YouTubeService.uploadVideo(
-            req.file.path,
-            {
-              title: videoData.title,
-              description: `${videoData.description}\n\nCompartilhado em reparacoeshistoricas.org`,
-              tags: ['racismo', 'relato', 'experiencia', 'brasil', videoData.racismType],
-              privacyStatus: 'unlisted' // Não listado por padrão
-            },
-            tokens.access_token!,
-            tokens.refresh_token
-          );
-
-          youtubeVideoId = uploadResult.videoId;
-          youtubeUrl = uploadResult.url;
-
-          // Limpar arquivo temporário
-          fs.unlinkSync(req.file.path);
-
-        } catch (uploadError: any) {
-          console.error('Erro no upload YouTube:', uploadError);
-          
-          // Limpar arquivo temporário
-          if (req.file?.path && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-          }
-          
-          return res.status(500).json({ 
-            message: `Erro no upload para YouTube: ${uploadError.message}`,
-            youtubeError: true
-          });
-        }
+        const permanentPath = path.join(permanentDir, req.file.filename);
+        fs.renameSync(req.file.path, permanentPath);
+        
+        console.log(`Arquivo salvo para processamento: ${permanentPath}`);
       }
 
-      // Salvar no banco com informações do YouTube
+      // Salvar no banco como PENDING para moderação admin
       const finalVideoData = {
         ...videoData,
-        youtubeId: youtubeVideoId,
-        youtubeUrl: youtubeUrl,
-        status: 'pending' as const
+        youtubeId: null, // Será preenchido pelo admin após aprovação
+        youtubeUrl: null, // Será preenchido pelo admin após upload
+        status: 'pending' as const,
+        filePath: req.file ? path.join('uploads/pending', req.file.filename) : null
       };
 
       const video = await storage.createVideo(finalVideoData);
+      
+      console.log(`Novo testemunho recebido (ID: ${video.id}): ${videoData.title}`);
+      
       res.json({ 
-        ...video, 
-        youtubeUploaded: !!youtubeVideoId,
-        youtubeUrl 
+        ...video,
+        message: 'Testemunho enviado com sucesso! Será revisado e publicado em breve.'
       });
 
     } catch (error: any) {
@@ -565,7 +533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fs.unlinkSync(req.file.path);
       }
       
-      res.status(500).json({ message: "Failed to create video" });
+      res.status(500).json({ message: "Erro ao processar envio. Tente novamente." });
     }
   });
 
@@ -727,6 +695,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating video status:", error);
       res.status(500).json({ message: "Failed to update video status" });
+    }
+  });
+
+  // ADMIN: Upload vídeo aprovado para YouTube
+  app.post('/api/admin/videos/:id/upload-youtube', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const tokens = req.session.youtubeTokens;
+      if (!tokens) {
+        return res.status(400).json({ 
+          message: 'Autorização do YouTube necessária para admin',
+          needsAuth: true 
+        });
+      }
+
+      const videoId = parseInt(req.params.id);
+      const video = await storage.getVideo(videoId);
+      
+      if (!video) {
+        return res.status(404).json({ message: "Vídeo não encontrado" });
+      }
+
+      if (video.status !== 'approved') {
+        return res.status(400).json({ message: "Apenas vídeos aprovados podem ser enviados ao YouTube" });
+      }
+
+      if (video.youtubeId) {
+        return res.status(400).json({ message: "Vídeo já foi enviado ao YouTube" });
+      }
+
+      if (!video.filePath || !fs.existsSync(video.filePath)) {
+        return res.status(400).json({ message: "Arquivo de vídeo não encontrado" });
+      }
+
+      try {
+        // Upload para YouTube
+        const uploadResult = await YouTubeService.uploadVideo(
+          video.filePath,
+          {
+            title: video.title || 'Testemunho sobre racismo',
+            description: `Testemunho compartilhado em reparacoeshistoricas.org\n\nTipo: ${video.racismType}\nLocalização: ${video.city}, ${video.state}`,
+            tags: ['racismo', 'testemunho', 'brasil', video.racismType],
+            privacyStatus: 'unlisted'
+          },
+          tokens.access_token!,
+          tokens.refresh_token
+        );
+
+        // Atualizar vídeo no banco com informações do YouTube
+        const updatedVideo = await storage.updateVideoWithYoutube(videoId, {
+          youtubeId: uploadResult.videoId,
+          youtubeUrl: uploadResult.url
+        });
+
+        // Remover arquivo local após upload bem-sucedido
+        fs.unlinkSync(video.filePath);
+
+        res.json({
+          message: 'Vídeo enviado ao YouTube com sucesso!',
+          video: updatedVideo[0],
+          youtubeUrl: uploadResult.url
+        });
+
+      } catch (uploadError: any) {
+        console.error('Erro no upload YouTube:', uploadError);
+        res.status(500).json({ 
+          message: `Erro no upload para YouTube: ${uploadError.message}` 
+        });
+      }
+
+    } catch (error) {
+      console.error("Error uploading to YouTube:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
     }
   });
 

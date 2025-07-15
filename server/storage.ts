@@ -221,6 +221,19 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount ?? 0) > 0;
   }
 
+  async updateVideoWithYoutube(id: number, youtubeData: { youtubeId: string; youtubeUrl: string }): Promise<Video> {
+    const [video] = await db
+      .update(videos)
+      .set({
+        youtubeId: youtubeData.youtubeId,
+        youtubeUrl: youtubeData.youtubeUrl,
+        updatedAt: new Date(),
+      })
+      .where(eq(videos.id, id))
+      .returning();
+    return video;
+  }
+
   // Statistics operations
   async getVideoStats(): Promise<{
     totalVideos: number;
