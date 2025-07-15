@@ -29,7 +29,7 @@ export default function PlaylistManagement() {
   const [playlistDescription, setPlaylistDescription] = useState("");
 
   // Buscar playlists existentes
-  const { data: playlists, isLoading: loadingPlaylists } = useQuery({
+  const { data: playlists, isLoading: loadingPlaylists, error: playlistsError } = useQuery({
     queryKey: ['/api/youtube/playlists'],
     retry: false,
   });
@@ -45,8 +45,7 @@ export default function PlaylistManagement() {
     mutationFn: async (data: { title: string; description: string; category: string }) => {
       return await apiRequest('/api/youtube/playlists', {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
     },
     onSuccess: () => {
@@ -118,6 +117,21 @@ export default function PlaylistManagement() {
 
   return (
     <div className="space-y-6">
+      {/* Status da Conexão YouTube */}
+      {playlistsError && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-orange-800">
+              <Youtube className="h-5 w-5" />
+              <span className="font-medium">Configuração OAuth Necessária</span>
+            </div>
+            <p className="text-sm text-orange-700 mt-2">
+              Para gerenciar playlists no YouTube, é necessário configurar a autorização OAuth no Google Console.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Criar Nova Playlist */}
       <Card>
         <CardHeader>

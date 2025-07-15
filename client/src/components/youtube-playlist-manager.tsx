@@ -41,7 +41,7 @@ export default function YouTubePlaylistManager() {
   const queryClient = useQueryClient();
 
   // Buscar playlists existentes
-  const { data: playlists = [], isLoading: playlistsLoading } = useQuery({
+  const { data: playlists = [], isLoading: playlistsLoading, error: playlistsError } = useQuery({
     queryKey: ["/api/youtube/playlists"],
     retry: false
   });
@@ -57,8 +57,7 @@ export default function YouTubePlaylistManager() {
     mutationFn: async (playlistData: typeof newPlaylist) => {
       return await apiRequest(`/api/youtube/playlists`, {
         method: "POST",
-        body: JSON.stringify(playlistData),
-        headers: { "Content-Type": "application/json" }
+        body: JSON.stringify(playlistData)
       });
     },
     onSuccess: () => {
@@ -83,8 +82,7 @@ export default function YouTubePlaylistManager() {
     mutationFn: async ({ playlistId, videoId }: { playlistId: string; videoId: string }) => {
       return await apiRequest(`/api/youtube/playlists/${playlistId}/videos`, {
         method: "POST",
-        body: JSON.stringify({ videoId }),
-        headers: { "Content-Type": "application/json" }
+        body: JSON.stringify({ videoId })
       });
     },
     onSuccess: () => {
@@ -232,6 +230,18 @@ export default function YouTubePlaylistManager() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {playlistsError && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-2 text-orange-800 mb-2">
+                <Youtube className="h-5 w-5" />
+                <span className="font-medium">Autorização YouTube Necessária</span>
+              </div>
+              <p className="text-sm text-orange-700">
+                Configure OAuth no Google Console para gerenciar playlists.
+              </p>
+            </div>
+          )}
+          
           {playlistsLoading ? (
             <div className="animate-pulse space-y-4">
               {[1, 2, 3].map(i => (
