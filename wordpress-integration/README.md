@@ -1,167 +1,263 @@
-# Integração WordPress - Muro Infinito de Vídeos
+# YouTube Video Wall - Integração WordPress
 
-## Visão Geral
-Este documento explica como integrar o Sistema Muro Infinito de Vídeos no site reparacoeshistoricas.org.
+## Implementação Completa no Site WordPress
 
-## Métodos de Integração
+### 1. Instalação do Plugin
 
-### 1. Iframe Responsivo (Recomendado)
-Incorpora o sistema diretamente nas páginas do WordPress.
-
-### 2. API REST 
-Consome os dados via API para exibição customizada.
-
-### 3. Plugin WordPress
-Plugin customizado para integração completa.
-
-## URLs do Sistema
-
-- **Aplicação Principal**: `https://seu-repl.replit.app/`
-- **Painel Admin**: `https://seu-repl.replit.app/admin`
-- **API Base**: `https://seu-repl.replit.app/api`
-
-## Implementação por Capítulos
-
-### QR Codes
-Cada capítulo do livro terá um QR code único que direciona para:
-`https://seu-repl.replit.app/chapter/{id}`
-
-### URLs por Capítulo
-- Capítulo 1: `https://seu-repl.replit.app/chapter/1`
-- Capítulo 2: `https://seu-repl.replit.app/chapter/2`
-- (e assim por diante...)
-
-## Códigos de Integração
-
-### Para Páginas do WordPress
-```html
-<!-- Iframe Responsivo -->
-<div style="position: relative; width: 100%; height: 70vh; min-height: 500px;">
-  <iframe 
-    src="https://seu-repl.replit.app/" 
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-    title="Muro Infinito de Vídeos">
-  </iframe>
-</div>
+**Passo 1: Fazer upload dos arquivos**
+```bash
+# Estrutura de pastas no seu WordPress:
+wp-content/plugins/youtube-video-wall/
+├── youtube-video-wall.php
+├── assets/
+│   ├── video-wall.js
+│   └── video-wall.css
+└── README.md
 ```
 
-### Para Capítulos Específicos
-```html
-<!-- Capítulo 1 -->
-<div style="position: relative; width: 100%; height: 70vh; min-height: 500px;">
-  <iframe 
-    src="https://seu-repl.replit.app/chapter/1" 
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-    title="Vídeos - Capítulo 1">
-  </iframe>
-</div>
-```
+**Passo 2: Ativar o plugin**
+1. Acesse o painel admin do WordPress
+2. Vá em "Plugins" > "Plugins instalados"
+3. Encontre "YouTube Video Wall - Reparações Históricas"
+4. Clique em "Ativar"
 
-## API Endpoints Disponíveis
+### 2. Configuração Básica
 
-### Vídeos
-- `GET /api/videos` - Lista todos os vídeos aprovados
-- `GET /api/videos?chapterId=1` - Vídeos de um capítulo específico
-- `POST /api/videos` - Upload de novo vídeo
+**URL da API:**
+- Atual: `https://883149f1-1c75-46d3-8a00-b3d17d4dda1d-00-zh6zir2txvr9.worf.replit.dev`
+- Produção: `https://reparacoeshistoricas.org`
 
-### Capítulos
-- `GET /api/chapters` - Lista todos os capítulos
-- `GET /api/chapters/{id}` - Detalhes de um capítulo
-- `POST /api/chapters` - Criar novo capítulo
+**Canal YouTube:**
+- Nome: @ReparacoesHistoricasBrasil
+- Channel ID: UCzpIDynWSNfGx4djJS_DFiQ
 
-### Estatísticas
-- `GET /api/admin/stats/overview` - Estatísticas gerais
-- `GET /api/admin/stats/location` - Por localização
-- `GET /api/admin/stats/racism-type` - Por tipo de racismo
+### 3. Usando os Shortcodes
 
-## Configuração no WordPress
-
-### 1. Adicionar ao functions.php
+#### Muro Completo de Vídeos
 ```php
-// Permitir iframes do sistema de vídeos
-function allow_video_wall_iframe($tags) {
-    $tags['iframe'] = array(
-        'src' => array(),
-        'height' => array(),
-        'width' => array(),
-        'style' => array(),
-        'title' => array(),
-        'frameborder' => array(),
-    );
-    return $tags;
-}
-add_filter('wp_kses_allowed_html', 'allow_video_wall_iframe');
+[youtube_video_wall]
 ```
 
-### 2. Shortcode para Facilitar
+#### Vídeos de Capítulo Específico
 ```php
-// Shortcode [video_wall]
-function video_wall_shortcode($atts) {
-    $atts = shortcode_atts(array(
-        'chapter' => '',
-        'height' => '70vh',
-        'url' => 'https://seu-repl.replit.app'
-    ), $atts);
+[youtube_chapter_videos chapter="1"]
+```
+
+#### Com Parâmetros Personalizados
+```php
+[youtube_video_wall chapter="1" limit="6" responsive="true"]
+```
+
+### 4. Criação de Páginas
+
+#### Página Principal de Vídeos
+```php
+<?php
+/*
+Template Name: Muro de Vídeos
+*/
+
+get_header(); ?>
+
+<div class="container">
+    <h1>Testemunhos sobre Racismo</h1>
+    <p>Vídeos reais do canal @ReparacoesHistoricasBrasil</p>
     
-    $src = $atts['url'];
-    if (!empty($atts['chapter'])) {
-        $src .= '/chapter/' . $atts['chapter'];
-    }
+    <?php echo do_shortcode('[youtube_video_wall limit="12" responsive="true"]'); ?>
+</div>
+
+<?php get_footer(); ?>
+```
+
+#### Página de Capítulo
+```php
+<?php
+/*
+Template Name: Vídeos do Capítulo
+*/
+
+get_header(); 
+
+$chapter_id = isset($_GET['chapter']) ? $_GET['chapter'] : '1';
+?>
+
+<div class="container">
+    <h1>Capítulo <?php echo esc_html($chapter_id); ?></h1>
     
-    return '<div style="position: relative; width: 100%; height: ' . $atts['height'] . '; min-height: 500px;">
-              <iframe src="' . $src . '" 
-                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
-                      title="Muro Infinito de Vídeos">
-              </iframe>
-            </div>';
+    <?php echo do_shortcode('[youtube_chapter_videos chapter="' . $chapter_id . '" limit="10"]'); ?>
+    
+    <div class="chapter-navigation">
+        <a href="<?php echo home_url('/videos'); ?>" class="btn btn-primary">
+            Ver Todos os Vídeos
+        </a>
+    </div>
+</div>
+
+<?php get_footer(); ?>
+```
+
+### 5. Configuração de URLs e QR Codes
+
+#### URLs para QR Codes
+```
+https://seusite.com/capitulo/1  → Redireciona para vídeos do capítulo 1
+https://seusite.com/capitulo/2  → Redireciona para vídeos do capítulo 2
+```
+
+#### Configuração do .htaccess
+```apache
+# Adicionar ao .htaccess do WordPress
+RewriteRule ^capitulo/([0-9]+)/?$ /videos-capitulo/?chapter=$1 [L,QSA]
+```
+
+### 6. Personalização do Tema
+
+#### Adicionar ao functions.php
+```php
+// Suporte para vídeos nas páginas
+function add_youtube_video_support() {
+    add_theme_support('youtube-video-wall');
 }
-add_shortcode('video_wall', 'video_wall_shortcode');
+add_action('after_setup_theme', 'add_youtube_video_support');
+
+// Registrar menu para navegação de vídeos
+function register_video_menus() {
+    register_nav_menus(array(
+        'video-chapters' => 'Menu de Capítulos de Vídeos'
+    ));
+}
+add_action('init', 'register_video_menus');
 ```
 
-### 3. Uso dos Shortcodes
+### 7. Integração com Menu Principal
+
+#### Adicionar ao menu do WordPress
+```php
+// No painel admin, vá em Aparência > Menus
+// Adicione links personalizados:
+
+- "Todos os Vídeos" → https://seusite.com/videos
+- "Capítulo 1" → https://seusite.com/capitulo/1
+- "Capítulo 2" → https://seusite.com/capitulo/2
 ```
-[video_wall] - Muro geral
-[video_wall chapter="1"] - Capítulo específico
-[video_wall chapter="1" height="80vh"] - Com altura customizada
+
+### 8. Exemplo de Implementação Completa
+
+#### Página index.php ou home.php
+```php
+<?php get_header(); ?>
+
+<main class="main-content">
+    <!-- Seção Hero -->
+    <section class="hero-section">
+        <div class="container">
+            <h1>Reparações Históricas</h1>
+            <p>Testemunhos reais sobre experiências de racismo no Brasil</p>
+            <a href="#videos" class="btn btn-primary">Ver Vídeos</a>
+        </div>
+    </section>
+    
+    <!-- Seção de Vídeos -->
+    <section id="videos" class="videos-section">
+        <div class="container">
+            <h2>Últimos Testemunhos</h2>
+            
+            <?php echo do_shortcode('[youtube_video_wall limit="8" responsive="true"]'); ?>
+            
+            <div class="text-center">
+                <a href="<?php echo home_url('/videos'); ?>" class="btn btn-secondary">
+                    Ver Todos os Vídeos
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<?php get_footer(); ?>
 ```
 
-## Responsividade
+### 9. CSS Adicional no Tema
 
-O sistema é totalmente responsivo e se adapta automaticamente a:
-- Desktop (layout em grid)
-- Tablet (grid reduzida)
-- Mobile (layout em coluna única)
+#### Adicionar ao style.css do tema
+```css
+/* Integração com o tema */
+.youtube-video-wall {
+    margin: 40px 0;
+}
 
-## SEO e Performance
+/* Botões personalizados */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #ff6b35;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
 
-### Meta Tags Incluídas
-- Open Graph para compartilhamento social
-- Meta descriptions em português
-- Títulos otimizados por página
+.btn:hover {
+    background: #e55a2b;
+    transform: translateY(-2px);
+}
 
-### Performance
-- Carregamento assíncrono de vídeos
-- Cache de dados via React Query
-- Imagens otimizadas
+/* Seção hero */
+.hero-section {
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
 
-## Segurança
+.hero-section h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+```
 
-- Autenticação via Replit Auth
-- Validação de dados com Zod
-- Proteção CSRF
-- Sanitização de inputs
+### 10. Verificação da Instalação
 
-## Próximos Passos
+#### Checklist de Implementação
+- [ ] Plugin instalado e ativado
+- [ ] Shortcodes funcionando
+- [ ] Modal de vídeos abrindo
+- [ ] Vídeos carregando do canal @ReparacoesHistoricasBrasil
+- [ ] URLs de capítulos redirecionando
+- [ ] QR codes funcionando
+- [ ] Layout responsivo
+- [ ] Integração com tema
 
-1. **Deploy do Sistema**: Fazer deploy no Replit
-2. **Configurar Domínio**: Opcional - configurar domínio customizado
-3. **Integrar no WordPress**: Adicionar códigos nas páginas
-4. **Gerar QR Codes**: Criar QR codes para cada capítulo
-5. **Testes**: Testar integração completa
+### 11. Troubleshooting
+
+#### Problemas Comuns
+1. **Vídeos não carregam**: Verificar URL da API
+2. **Shortcode não funciona**: Verificar ativação do plugin
+3. **Modal não abre**: Verificar inclusão do JavaScript
+4. **QR codes não funcionam**: Verificar configuração do .htaccess
+
+#### Logs e Debug
+```php
+// Ativar debug no wp-config.php
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+
+// Verificar logs em: wp-content/debug.log
+```
+
+### 12. Próximos Passos
+
+1. **Configurar OAuth**: Para funcionalidades avançadas
+2. **Adicionar analytics**: Tracking de visualizações
+3. **Implementar cache**: Para melhor performance
+4. **Adicionar SEO**: Meta tags para vídeos
+5. **Criar sitemap**: Para indexação dos vídeos
+
+---
 
 ## Suporte Técnico
 
-Para suporte técnico ou customizações:
-- Documentação completa no repositório
-- API REST totalmente documentada
-- Sistema modular e extensível
+**Sistema desenvolvido por:** B2Santos  
+**Canal integrado:** @ReparacoesHistoricasBrasil  
+**Tecnologia:** React + YouTube API + WordPress  
+
+**Para suporte:** Contate através do sistema administrativo do Replit.
