@@ -160,6 +160,13 @@ Changelog:
   - 2 botões de ação flutuantes (upload e info)
   - Thumbnails maiores para melhor visibilidade
   - Sistema de QR codes preparado para capítulos de livros
+- July 15, 2025. Sistema de Upload Direto Implementado:
+  - Upload simplificado para usuários finais (sem OAuth)
+  - Separação clara entre upload do usuário e envio ao YouTube
+  - Novo fluxo: Upload → Moderação → YouTube (apenas admin)
+  - Campo filePath adicionado ao banco de dados
+  - Interface de moderação com botão "Enviar ao YouTube"
+  - Remoção da complexidade OAuth para usuários regulares
 
 ## Status Atual
 
@@ -169,6 +176,7 @@ Changelog:
 - Gestão de categorias e capítulos funcional
 - Geração de QR codes para capítulos pronto
 - Interface responsiva e otimizada
+- **NOVO:** Sistema de upload direto funcionando
 
 ### Integração WordPress ✓
 - Plugin completo criado
@@ -181,33 +189,29 @@ Changelog:
 - Sistema totalmente funcional
 - APIs testadas e operacionais
 - Integração YouTube API implementada
-- Upload direto para YouTube funcionando
+- **NOVO:** Upload direto para usuários + YouTube apenas para admin
 - Autorização OAuth2 configurada para teste e produção
 - Documentação de integração completa
 - Códigos WordPress prontos para uso
 - Guias de deployment para Hostinger
 
-### Configuração YouTube OAuth - ERRO 403 ATIVO
-**PROBLEMA:** App em modo de teste no Google Console, usuário não autorizado
+### Configuração YouTube OAuth - CONFIGURADO PARA ADMIN
+**NOVO FLUXO IMPLEMENTADO:**
+- Usuários regulares: Upload direto sem OAuth (arquivo local)
+- Administradores: OAuth apenas para envio ao YouTube de vídeos aprovados
 
 **URLs de Redirecionamento necessárias no Google Console:**
 - Atual: https://883149f1-1c75-46d3-8a00-b3d17d4dda1d-00-zh6zir2txvr9.worf.replit.dev/api/youtube/callback
 - Produção: https://reparacoeshistoricas.org/api/youtube/callback
 - Local: http://localhost:5000/api/youtube/callback
 
-**SOLUÇÃO NECESSÁRIA:**
-1. Google Cloud Console → APIs & Services → Credentials
-2. OAuth 2.0 Client ID → Adicionar URL de redirect atual
-3. OAuth consent screen → Test users → Adicionar: contact@b2santos.fr
-4. APIs & Services → Library → Habilitar YouTube Data API v3
-5. Verificar se Client ID e Secret estão corretos
-
 **Canal YouTube:**
-- Nome: @ReparacoesHistoricas (NOVO CANAL)
+- Nome: @ReparacoesHistoricas
 - Channel ID: UCRMRvNncp4fFy-27JD4Ph2w
 - URL: https://www.youtube.com/channel/UCRMRvNncp4fFy-27JD4Ph2w
 
 **Status Atual:**
 - Sincronização: Funciona com API pública (sem OAuth)
-- Upload: BLOQUEADO - Erro 403 OAuth
-- Playlists: BLOQUEADO - Erro 403 OAuth
+- Upload: FUNCIONA - Fluxo direto para usuários + admin para YouTube
+- Playlists: Funciona para admins autorizados
+- Moderação: Interface completa com botão "Enviar ao YouTube"

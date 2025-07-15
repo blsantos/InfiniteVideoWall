@@ -6,9 +6,9 @@ import { insertVideoSchema, updateVideoStatusSchema } from "@shared/schema";
 import { z } from "zod";
 import QRCode from "qrcode";
 import multer from "multer";
-import YouTubeService from "./youtube";
+import { YouTubeService } from "./youtube";
 import { YOUTUBE_CONFIG } from "./youtube-config";
-import ChannelManager from "./channel-manager";
+import { ChannelManager } from "./channel-manager";
 import fs from "fs";
 import path from "path";
 
@@ -758,7 +758,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         res.json({
           message: 'Vídeo enviado ao YouTube com sucesso!',
-          video: updatedVideo[0],
+          video: updatedVideo,
           youtubeUrl: uploadResult.url
         });
 

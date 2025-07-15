@@ -83,8 +83,6 @@ export default function UploadForm() {
     },
   });
 
-  // Usuários normais não precisam de autorização YouTube - upload direto
-
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -133,39 +131,18 @@ export default function UploadForm() {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-primary">Vídeo</h3>
           
-          {/* YouTube Authorization */}
-          {!youtubeAuth && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <Youtube className="h-5 w-5 text-red-600" />
-                <div className="flex-1">
-                  <h4 className="font-medium text-red-900">Autorização do YouTube necessária</h4>
-                  <p className="text-sm text-red-700">Para fazer upload direto para o YouTube, você precisa autorizar nossa aplicação.</p>
-                </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm"
-                  onClick={authorizeYoutube}
-                  className="border-red-300 text-red-700 hover:bg-red-100"
-                >
-                  Autorizar YouTube
-                </Button>
+          {/* Upload Info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <i className="fas fa-info-circle text-blue-600 text-sm"></i>
+              </div>
+              <div>
+                <h4 className="font-medium text-blue-900">Como funciona o envio</h4>
+                <p className="text-sm text-blue-700">Seu vídeo será enviado para moderação. Após aprovação, nossa equipe fará o upload para o YouTube automaticamente.</p>
               </div>
             </div>
-          )}
-          
-          {youtubeAuth === 'success' && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <Youtube className="h-5 w-5 text-green-600" />
-                <div>
-                  <h4 className="font-medium text-green-900">YouTube autorizado!</h4>
-                  <p className="text-sm text-green-700">Seus vídeos serão enviados diretamente para o YouTube.</p>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
           <FormField
             control={form.control}
             name="videoFile"
