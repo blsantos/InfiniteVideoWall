@@ -1,0 +1,69 @@
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+8:27:09 AM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+8:27:17 AM [express] GET /api/videos 304 in 455ms :: [{"id":26,"youtubeId":"fLEvc1oHANc","youtubeUrl…
+8:27:17 AM [express] GET /api/auth/user 304 in 460ms :: {"id":"41808540","email":"contact@b2santos.f…
+8:27:20 AM [express] GET /api/auth/user 401 in 1ms :: {"message":"Unauthorized"}
+8:27:20 AM [express] GET /api/videos 304 in 76ms :: [{"id":26,"youtubeId":"fLEvc1oHANc","youtubeUrl"…
+8:27:44 AM [express] GET /api/admin/videos 304 in 727ms :: [{"id":26,"youtubeId":"fLEvc1oHANc","yout…
+8:27:48 AM [express] GET /api/youtube/channel-info 400 in 152ms :: {"message":"Autorização do YouTub…
+8:27:49 AM [express] GET /api/videos 304 in 228ms :: [{"id":26,"youtubeId":"fLEvc1oHANc","youtubeUrl…
+8:27:49 AM [express] GET /api/auth/user 401 in 257ms :: {"message":"Unauthorized"}
+8:27:49 AM [express] GET /api/videos 304 in 219ms :: [{"id":26,"youtubeId":"fLEvc1oHANc","youtubeUrl…
+8:27:49 AM [express] GET /api/auth/user 401 in 241ms :: {"message":"Unauthorized"}
+8:27:51 AM [express] GET /api/youtube/auth 200 in 145ms :: {"authUrl":"https://accounts.google.com/o…
+YouTube callback recebido com código: 4/0AVMBsJh...
+Erro ao obter tokens: TypeError: Cannot destructure property 'tokens' of '(intermediate value)' as it is undefined.
+    at Function.getTokensFromCode (/home/runner/workspace/server/youtube.ts:63:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:187:22)
+Erro no callback YouTube: Error: Falha na autenticação OAuth: Cannot destructure property 'tokens' of '(intermediate value)' as it is undefined.
+    at Function.getTokensFromCode (/home/runner/workspace/server/youtube.ts:74:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:187:22)
+/home/runner/workspace/node_modules/google-auth-library/build/src/auth/oauth2client.js:314
+                    throw new Error('No refresh token or refresh handler callback is set.');
+                          ^
+
+Error: No refresh token or refresh handler callback is set.
+    at OAuth2Client.getAccessTokenAsync (/home/runner/workspace/node_modules/google-auth-library/build/src/auth/oauth2client.js:314:27)
+    at OAuth2Client.getAccessToken (/home/runner/workspace/node_modules/google-auth-library/build/src/auth/oauth2client.js:296:18)
+    at Function.getTokensFromCode (/home/runner/workspace/server/youtube.ts:63:45)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:187:43)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at strategy.pass (/home/runner/workspace/node_modules/passport/lib/middleware/authenticate.js:355:9)
+    at /home/runner/workspace/node_modules/passport/lib/strategies/session.js:120:12
+    at pass (/home/runner/workspace/node_modules/passport/lib/authenticator.js:352:31)
+    at deserialized (/home/runner/workspace/node_modules/passport/lib/authenticator.js:364:7)
+    at <anonymous> (/home/runner/workspace/server/replitAuth.ts:102:56)
+    at pass (/home/runner/workspace/node_modules/passport/lib/authenticator.js:372:9)
+    at Authenticator.deserializeUser (/home/runner/workspace/node_modules/passport/lib/authenticator.js:377:5)
+    at SessionStrategy.authenticate (/home/runner/workspace/node_modules/passport/lib/strategies/session.js:112:10)
+    at attempt (/home/runner/workspace/node_modules/passport/lib/middleware/authenticate.js:378:16)
+    at authenticate (/home/runner/workspace/node_modules/passport/lib/middleware/authenticate.js:379:7)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at initialize (/home/runner/workspace/node_modules/passport/lib/middleware/initialize.js:98:5)
+    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+    at trim_prefix (/home/runner/workspace/node_modules/express/lib/router/index.js:328:13)
+    at /home/runner/workspace/node_modules/express/lib/router/index.js:286:9
+    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)
+    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)
+    at /home/runner/workspace/node_modules/express-session/index.js:514:7
+    at /home/runner/workspace/node_modules/connect-pg-simple/index.js:370:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+
+Node.js v20.18.1

@@ -5,11 +5,20 @@ import path from 'path';
 
 const youtube = google.youtube('v3');
 
-// Configuração OAuth2
+// Configurar redirect URI baseado no ambiente
+let baseUrl;
+if (process.env.NODE_ENV === 'production') {
+  baseUrl = 'https://reparacoeshistoricas.org';
+} else if (process.env.REPLIT_DOMAINS) {
+  baseUrl = `https://${process.env.REPLIT_DOMAINS.split(',')[0]}`;
+} else {
+  baseUrl = 'http://localhost:5000';
+}
+
 const oauth2Client = new OAuth2Client(
   process.env.YOUTUBE_CLIENT_ID,
   process.env.YOUTUBE_CLIENT_SECRET,
-  `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/api/youtube/callback`
+  `${baseUrl}/api/youtube/callback`
 );
 
 // Scopes necessários para upload
@@ -33,19 +42,6 @@ export class YouTubeService {
    * Gera URL de autorização OAuth2
    */
   static getAuthUrl(state?: string): string {
-    // Configurar redirect URI baseado no ambiente
-    let baseUrl;
-    
-    if (process.env.NODE_ENV === 'production') {
-      baseUrl = 'https://reparacoeshistoricas.org';
-    } else if (process.env.REPLIT_DOMAINS) {
-      baseUrl = `https://${process.env.REPLIT_DOMAINS.split(',')[0]}`;
-    } else {
-      baseUrl = 'http://localhost:5000';
-    }
-    
-    oauth2Client.redirectUri = `${baseUrl}/api/youtube/callback`;
-    
     return oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: SCOPES,
@@ -60,9 +56,7 @@ export class YouTubeService {
    */
   static async getTokensFromCode(code: string) {
     try {
-      const { tokens } = await oauth2Client.getAccessToken({
-        code: code
-      });
+      const { tokens } = await oauth2Client.getAccessToken(code);
       
       if (!tokens) {
         throw new Error('Nenhum token retornado pelo Google');
