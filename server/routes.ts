@@ -7,6 +7,8 @@ import { z } from "zod";
 import QRCode from "qrcode";
 import multer from "multer";
 import YouTubeService from "./youtube";
+import { YOUTUBE_CONFIG } from "./youtube-config";
+import ChannelManager from "./channel-manager";
 import fs from "fs";
 import path from "path";
 
@@ -242,8 +244,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      // Usar Channel ID público do canal @ReparacoesHistoricasBrasil
-      const channelId = 'UCzpIDynWSNfGx4djJS_DFiQ';
+      // Usar Channel ID público do novo canal
+      const channelId = YOUTUBE_CONFIG.CHANNEL_ID;
       
       const youtubeVideos = await YouTubeService.listChannelVideosByChannelId(channelId);
       let syncedCount = 0;
@@ -777,6 +779,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     // Redirect to frontend chapter page
     res.redirect(`/#/chapter/${id}`);
+  });
+
+  // 🆕 TROCAR CANAL YOUTUBE - Nova rota para configurar novo canal
+  app.post('/api/youtube/change-channel', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { channelInput, channelName } = req.body;
+      
+      if (!channelInput) {
+        return res.status(400).json({ 
+          message: 'Channel ID, URL ou @username é obrigatório' 
+        });
+      }
+
+      let channelId = ChannelManager.extractChannelId(channelInput);
+      
+      // Se não conseguiu extrair, pode ser um @username
+      if (!channelId && channelInput.includes('@')) {
+        const searchResult = await ChannelManager.searchChannelByUsername(channelInput);
+        if (searchResult.found) {
+          channelId = searchResult.channelId;
+        }
+      }
+      
+      if (!channelId) {
+        return res.status(400).json({ 
+          message: 'Formato inválido. Use Channel ID (UCxxxxx), URL do canal ou @username'
+        });
+      }
+
+      // Atualizar canal
+      const result = await ChannelManager.updateChannel(channelId, channelName);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: result.error || 'Erro ao atualizar canal'
+        });
+      }
+
+      // Sincronizar vídeos do novo canal
+      const syncResult = await ChannelManager.syncNewChannel(channelId);
+
+      res.json({
+        message: 'Canal atualizado com sucesso!',
+        channel: result.config,
+        channelInfo: result.channelInfo,
+        sync: syncResult
+      });
+
+    } catch (error: any) {
+      console.error('Erro ao trocar canal:', error);
+      res.status(500).json({ message: 'Erro interno: ' + error.message });
+    }
   });
 
   const httpServer = createServer(app);

@@ -11,6 +11,7 @@ import VideoModeration from "@/components/video-moderation";
 import QRManagement from "@/components/qr-management";
 import AdminStats from "@/components/admin-stats";
 import YouTubeDebug from "@/components/youtube-debug";
+import ChannelSwitcher from "@/components/channel-switcher";
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
@@ -88,10 +89,11 @@ export default function Admin() {
           </div>
           
           <Tabs defaultValue="moderation" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="moderation">Moderação</TabsTrigger>
               <TabsTrigger value="playlists">Playlists</TabsTrigger>
               <TabsTrigger value="youtube">YouTube</TabsTrigger>
+              <TabsTrigger value="channel">🔧 Canal</TabsTrigger>
               <TabsTrigger value="debug">Debug</TabsTrigger>
               <TabsTrigger value="stats">Estatísticas</TabsTrigger>
             </TabsList>
@@ -113,6 +115,16 @@ export default function Admin() {
             <TabsContent value="youtube" className="space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
                 <YouTubeSync />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="channel" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Configurar Novo Canal</h2>
+                  <p className="text-gray-600">Após excluir o canal anterior, configure o novo canal YouTube aqui.</p>
+                </div>
+                <ChannelSwitcher />
               </div>
             </TabsContent>
 
