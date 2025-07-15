@@ -178,9 +178,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('YouTube callback recebido com código:', code.substring(0, 10) + '...');
       
+      // Verificar state para segurança (opcional para debugging)
+      if (req.session.youtubeAuthState && state !== req.session.youtubeAuthState) {
+        console.warn('State mismatch, mas continuando para debug');
+      }
+      
       // Trocar código por tokens
-      const tokens = await YouTubeService.getTokensFromCode(code);
-      console.log('Tokens obtidos com sucesso');
+      const tokens = await YouTubeService.getTokensFromCode(code as string);
+      console.log('Tokens obtidos com sucesso:', tokens ? 'Sim' : 'Não');
       
       // Salvar tokens na sessão
       req.session.youtubeTokens = tokens;

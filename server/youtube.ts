@@ -59,8 +59,20 @@ export class YouTubeService {
    * Troca código de autorização por tokens
    */
   static async getTokensFromCode(code: string) {
-    const { tokens } = await oauth2Client.getAccessToken(code);
-    return tokens;
+    try {
+      const { tokens } = await oauth2Client.getAccessToken({
+        code: code
+      });
+      
+      if (!tokens) {
+        throw new Error('Nenhum token retornado pelo Google');
+      }
+      
+      return tokens;
+    } catch (error) {
+      console.error('Erro ao obter tokens:', error);
+      throw new Error('Falha na autenticação OAuth: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+    }
   }
 
   /**
