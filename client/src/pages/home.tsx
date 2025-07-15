@@ -3,62 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Upload, Info, Play, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Plus, HelpCircle, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
 import VideoWall from "@/components/video-wall";
 import VideoModal from "@/components/video-modal";
 import type { Video as VideoType } from "@shared/schema";
 import logoUrl from "@assets/logo-repacoes@2x_1752339173739.png";
 
-// Gerador de vídeos de demonstração para o scroll infinito
-const generateDummyVideos = (count: number): VideoType[] => {
-  const colors = [
-    "6B46C1", "EC4899", "10B981", "F59E0B", "EF4444", "8B5CF6",
-    "06B6D4", "84CC16", "F97316", "DC2626", "7C3AED", "059669",
-    "0891B2", "65A30D", "EA580C", "B91C1C", "9333EA", "047857",
-    "0284C7", "4D7C0F", "C2410C", "991B1B", "7C2D12", "064E3B"
-  ];
-  
-  const racismTypes = [
-    "Discriminação no trabalho", "Abordagem policial", "Racismo estrutural", 
-    "Recusa de atendimento", "Discriminação habitacional", "Injúria racial",
-    "Racismo institucional", "Microagressões", "Discriminação escolar",
-    "Racismo no transporte", "Negação de acesso", "Comentários preconceituosos"
-  ];
-  
-  const locations = [
-    "São Paulo", "Rio de Janeiro", "Belo Horizonte", "Salvador", "Brasília", "Fortaleza",
-    "Curitiba", "Recife", "Porto Alegre", "Manaus", "Belém", "Goiânia",
-    "Guarulhos", "Campinas", "São Luís", "São Gonçalo", "Maceió", "Duque de Caxias"
-  ];
-  
-  const ages = ["18-25", "25-35", "35-45", "45-55", "55+"];
-  const genders = ["Homem", "Mulher", "Não-binário"];
-  
-  return Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
-    title: `Testemunho ${i + 1}`,
-    description: `Experiência de ${racismTypes[i % racismTypes.length]}`,
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    thumbnailUrl: `https://picsum.photos/300/400?random=${i + 1}`,
-    chapterId: 1,
-    submitterName: "Anônimo",
-    submitterAge: ages[i % ages.length],
-    submitterGender: genders[i % genders.length],
-    submitterLocation: locations[i % locations.length],
-    racismType: racismTypes[i % racismTypes.length],
-    status: "approved",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    moderatorId: null,
-    moderatorComments: null
-  }));
-};
-
-// Gerar 80 vídeos para testar o scroll infinito
-const dummyVideos = generateDummyVideos(80);
-
 export default function Home() {
   const [selectedVideo, setSelectedVideo] = useState<VideoType | null>(null);
   const { user } = useAuth();
+
+  // Buscar vídeos reais do YouTube via API
+  const { data: videos = [], isLoading } = useQuery({
+    queryKey: ["/api/videos"],
+    select: (data: VideoType[]) => data.filter(video => video.status === "approved")
+  });
 
   const handleVideoSelect = (video: VideoType) => {
     setSelectedVideo(video);
@@ -181,12 +140,34 @@ export default function Home() {
         )}
       </div>
 
-      {/* Container do mur de vidéos */}
+      {/* Container do muro de vídeos */}
       <div className="w-full p-2">
-        <VideoWall 
-          videos={dummyVideos} 
-          onVideoSelect={handleVideoSelect} 
-        />
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Carregando vídeos do YouTube...</p>
+            </div>
+          </div>
+        ) : videos.length > 0 ? (
+          <VideoWall 
+            videos={videos} 
+            onVideoSelect={handleVideoSelect} 
+          />
+        ) : (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="text-6xl mb-4">📹</div>
+              <h2 className="text-2xl font-bold text-gray-700 mb-2">Nenhum vídeo disponível</h2>
+              <p className="text-gray-500 mb-4">Os vídeos do canal @ReparacoesHistoricasBrasil serão exibidos aqui</p>
+              {user?.isAdmin && (
+                <Link href="/admin">
+                  <Button>Gerenciar Vídeos</Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal pour les vidéos */}

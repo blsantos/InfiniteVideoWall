@@ -87,22 +87,14 @@ export default function Admin() {
             <p className="text-gray-600 mt-2">Gerencie vídeos, estatísticas e configurações do sistema</p>
           </div>
           
-          <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
-              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <Tabs defaultValue="moderation" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="moderation">Moderação</TabsTrigger>
-              <TabsTrigger value="qr">QR Codes</TabsTrigger>
               <TabsTrigger value="playlists">Playlists</TabsTrigger>
               <TabsTrigger value="youtube">YouTube</TabsTrigger>
               <TabsTrigger value="debug">Debug</TabsTrigger>
               <TabsTrigger value="stats">Estatísticas</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="dashboard" className="space-y-6">
-              <div className="bg-white rounded-lg shadow p-6">
-                <AdminDashboard />
-              </div>
-            </TabsContent>
 
             <TabsContent value="moderation" className="space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
@@ -110,11 +102,7 @@ export default function Admin() {
               </div>
             </TabsContent>
 
-            <TabsContent value="qr" className="space-y-6">
-              <div className="bg-white rounded-lg shadow p-6">
-                <QRManagement />
-              </div>
-            </TabsContent>
+
 
             <TabsContent value="playlists" className="space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
