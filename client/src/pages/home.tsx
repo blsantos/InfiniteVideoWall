@@ -127,7 +127,17 @@ export default function Home() {
           </Button>
         </Link>
 
-        {user?.isAdmin && (
+        {/* Botão Login/Admin */}
+        {!user ? (
+          <Button 
+            onClick={() => window.location.href = '/api/login'}
+            variant="outline"
+            size="lg"
+            className="rounded-full w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white border-blue-500 shadow-lg hover:shadow-xl transition-all duration-300 p-0"
+          >
+            <Settings className="h-6 w-6" />
+          </Button>
+        ) : (
           <Link href="/admin">
             <Button 
               variant="outline"
