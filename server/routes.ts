@@ -81,14 +81,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/chapters', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chapters', isAuthenticated, async (req, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
+      const { title, description, category } = req.body;
+      const qrCodeData = `${req.protocol}://${req.get('host')}/chapter/${title}`;
+      const qrCode = await QRCode.toDataURL(qrCodeData);
 
-      const chapter = await storage.createChapter(req.body);
+      const chapter = await storage.createChapter({
+        title,
+        description,
+        category,
+        qrCode,
+      });
+
       res.json(chapter);
     } catch (error) {
       console.error("Error creating chapter:", error);
@@ -96,43 +101,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // QR Code routes
-  app.post('/api/chapters/:id/qr-code', isAuthenticated, async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      const id = parseInt(req.params.id);
-      const baseUrl = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
-      const url = `https://${baseUrl}/capitulo/${id}`;
-      
-      const qrCode = await QRCode.toDataURL(url);
-      const chapter = await storage.updateChapterQRCode(id, qrCode);
-      
-      res.json(chapter);
-    } catch (error) {
-      console.error("Error generating QR code:", error);
-      res.status(500).json({ message: "Failed to generate QR code" });
-    }
-  });
-
   // Video routes
   app.get('/api/videos', async (req, res) => {
     try {
-      const { chapterId, status, racismType, location, search, category, limit = '20', offset = '0' } = req.query;
-      
+      const { status, racismType, location, search, chapterId } = req.query;
       const filters: any = {};
-      if (chapterId) filters.chapterId = parseInt(chapterId as string);
-      if (status) filters.status = status as string;
-      if (racismType) filters.racismType = racismType as string;
-      if (location) filters.location = location as string;
-      if (search) filters.search = search as string;
-      if (category) filters.category = category as string;
       
-      filters.limit = parseInt(limit as string);
-      filters.offset = parseInt(offset as string);
+      if (status) filters.status = status;
+      if (racismType) filters.racismType = racismType;
+      if (location) filters.location = location;
+      if (search) filters.search = search;
+      if (chapterId) filters.chapterId = parseInt(chapterId as string);
       
       const videos = await storage.getVideos(filters);
       res.json(videos);
@@ -157,21 +136,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // YouTube OAuth routes
-  app.get('/api/youtube/auth', (req: any, res) => {
-    const state = 'youtube_auth_' + Date.now();
-    req.session.youtubeAuthState = state;
-    const authUrl = YouTubeService.getAuthUrl(state);
-    res.json({ authUrl });
+  app.get('/api/youtube/auth', isAuthenticated, async (req: any, res) => {
+    try {
+      const authUrl = await YouTubeService.getAuthUrl();
+      res.json({ authUrl });
+    } catch (error) {
+      console.error('Erro ao gerar URL de autorização:', error);
+      res.status(500).json({ message: 'Erro ao gerar URL de autorização' });
+    }
   });
 
-  // YouTube callback - processar retorno da autorização
   app.get('/api/youtube/callback', async (req: any, res) => {
     try {
-      const { code, state, error } = req.query;
+      const { code, error: authError } = req.query;
       
-      if (error) {
-        console.error('Erro na autorização YouTube:', error);
-        return res.redirect('/admin?youtube_error=' + encodeURIComponent(error));
+      if (authError) {
+        console.error('Erro de autorização:', authError);
+        return res.redirect('/admin?youtube_error=' + encodeURIComponent(authError));
       }
       
       if (!code) {
@@ -180,14 +161,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('YouTube callback recebido com código:', code.substring(0, 10) + '...');
       
-      // Trocar código por tokens
       const tokens = await YouTubeService.getTokensFromCode(code as string);
       console.log('Tokens obtidos com sucesso:', !!tokens.access_token);
       
-      // Salvar tokens na sessão
       req.session.youtubeTokens = tokens;
       
-      // Redirecionar para o admin com sucesso
       res.redirect('/admin?youtube_success=true');
       
     } catch (error: any) {
@@ -196,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Verificar informações do canal YouTube
+  // YouTube API routes
   app.get('/api/youtube/channel-info', async (req: any, res) => {
     try {
       const tokens = req.session.youtubeTokens;
@@ -216,7 +194,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Listar vídeos do canal YouTube
   app.get('/api/youtube/videos', async (req: any, res) => {
     try {
       const tokens = req.session.youtubeTokens;
@@ -236,15 +213,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Sincronizar vídeos do YouTube com o banco de dados (usando Channel ID público)
   app.post('/api/youtube/sync', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      // Usar Channel ID público do novo canal
       const channelId = YOUTUBE_CONFIG.CHANNEL_ID;
       
       const youtubeVideos = await YouTubeService.listChannelVideosByChannelId(channelId);
@@ -252,7 +222,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let skippedCount = 0;
 
       for (const ytVideo of youtubeVideos.items || []) {
-        // Extrair o videoId correto do objeto
         const videoId = ytVideo.id?.videoId || ytVideo.id;
         
         if (!videoId || typeof videoId !== 'string') {
@@ -260,11 +229,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           continue;
         }
         
-        // Verificar se o vídeo já existe no banco (busca exata por youtube_id)
         const existingVideos = await storage.getVideos({ search: videoId });
         
         if (existingVideos.length === 0) {
-          // Criar novo vídeo no banco com dados básicos
           const newVideo = await storage.createVideo({
             youtubeId: videoId,
             youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
@@ -276,50 +243,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: "Brasil",
             skinTone: "Não informado",
             racismType: "Outro",
-            status: "approved" // Assumir aprovado se já está no canal
+            status: "approved"
           });
+          
+          console.log(`Vídeo sincronizado: ${newVideo.title}`);
           syncedCount++;
-          console.log(`Vídeo sincronizado: ${videoId} - ${ytVideo.snippet?.title}`);
         } else {
-          skippedCount++;
           console.log(`Vídeo já existe: ${videoId} - ${ytVideo.snippet?.title}`);
+          skippedCount++;
         }
       }
 
-      res.json({ 
-        message: `${syncedCount} vídeos sincronizados, ${skippedCount} já existiam`,
-        totalVideos: youtubeVideos.items?.length || 0,
-        syncedVideos: syncedCount,
-        skippedVideos: skippedCount,
-        channelId: channelId
-      });
-    } catch (error) {
-      console.error('Erro ao sincronizar vídeos:', error);
-      res.status(500).json({ message: 'Erro ao sincronizar vídeos' });
-    }
-  });
-
-  // Verificar informações do canal público
-  app.get('/api/youtube/channel-public', async (req, res) => {
-    try {
-      const channelId = YOUTUBE_CONFIG.CHANNEL_ID;
-      const channelInfo = await YouTubeService.getChannelInfoById(channelId);
-      
-      if (!channelInfo) {
-        return res.status(404).json({ message: 'Canal não encontrado' });
-      }
-
       res.json({
-        ...channelInfo,
-        channelUrl: `https://www.youtube.com/channel/${channelId}`
+        message: `${syncedCount} vídeos sincronizados, ${skippedCount} já existiam`,
+        synced: syncedCount,
+        skipped: skippedCount
       });
     } catch (error) {
-      console.error('Erro ao obter informações do canal público:', error);
-      res.status(500).json({ message: 'Erro ao obter informações do canal' });
+      console.error('Erro na sincronização:', error);
+      res.status(500).json({ message: 'Erro na sincronização' });
     }
   });
 
-  // Gerenciamento de Playlists YouTube
   app.get('/api/youtube/playlists', async (req: any, res) => {
     try {
       const tokens = req.session.youtubeTokens;
@@ -339,14 +284,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Criar playlist para categoria
   app.post('/api/youtube/playlists', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const tokens = req.session.youtubeTokens;
       
       if (!tokens) {
@@ -365,7 +304,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'public'
       );
 
-      // Atualizar capítulos com a categoria correspondente
       if (category && playlist.id) {
         const chapters = await storage.getChapters();
         const categoryChapters = chapters.filter(c => c.category === category);
@@ -386,14 +324,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Adicionar vídeo à playlist da categoria
   app.post('/api/youtube/playlists/:playlistId/videos', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const tokens = req.session.youtubeTokens;
       
       if (!tokens) {
@@ -419,15 +351,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Limpar vídeos inválidos
   app.post('/api/youtube/cleanup-invalid', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      // Buscar vídeos com problemas
       const allVideos = await storage.getVideos({});
       let deletedCount = 0;
 
@@ -456,46 +381,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/youtube/callback', async (req, res) => {
-    try {
-      const { code, state } = req.query;
-      
-      if (!code) {
-        return res.status(400).json({ message: 'Código de autorização ausente' });
-      }
-
-      const tokens = await YouTubeService.getTokensFromCode(code as string);
-      
-      // Salvar tokens na sessão (temporário)
-      (req as any).session.youtubeTokens = tokens;
-      
-      // Redirecionar de volta para a página de upload
-      res.redirect('/upload?youtube=success');
-    } catch (error) {
-      console.error('Erro no callback YouTube:', error);
-      res.redirect('/upload?youtube=error');
-    }
-  });
-
   // Upload de vídeo - USUÁRIOS NORMAIS (SEM OAUTH)
   app.post('/api/videos', upload.single('video'), async (req: any, res) => {
     try {
       const videoData = insertVideoSchema.parse(req.body);
 
-      // Validar arquivo se enviado
       if (req.file) {
-        // Validar formato
         if (!YouTubeService.validateVideoFormat(req.file.path)) {
-          fs.unlinkSync(req.file.path); // Limpar arquivo
+          fs.unlinkSync(req.file.path);
           return res.status(400).json({ message: 'Formato de vídeo não suportado' });
         }
 
         if (!YouTubeService.validateFileSize(req.file.path)) {
-          fs.unlinkSync(req.file.path); // Limpar arquivo
+          fs.unlinkSync(req.file.path);
           return res.status(400).json({ message: 'Arquivo muito grande (máximo 2GB)' });
         }
 
-        // Mover arquivo para diretório permanente para processamento posterior
         const permanentDir = 'uploads/pending';
         if (!fs.existsSync(permanentDir)) {
           fs.mkdirSync(permanentDir, { recursive: true });
@@ -507,11 +408,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Arquivo salvo para processamento: ${permanentPath}`);
       }
 
-      // Salvar no banco como PENDING para moderação admin
       const finalVideoData = {
         ...videoData,
-        youtubeId: null, // Será preenchido pelo admin após aprovação
-        youtubeUrl: null, // Será preenchido pelo admin após upload
+        youtubeId: null,
+        youtubeUrl: null,
         status: 'pending' as const,
         filePath: req.file ? path.join('uploads/pending', req.file.filename) : null
       };
@@ -528,7 +428,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating video:", error);
       
-      // Limpar arquivo temporário em caso de erro
       if (req.file?.path && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
@@ -537,15 +436,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Remover rota duplicada - usar apenas /api/admin/videos/:id/status
-
   app.delete('/api/videos/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const id = parseInt(req.params.id);
       const success = await storage.deleteVideo(id);
       
@@ -574,26 +466,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Statistics Routes (protected)
   app.get('/api/admin/stats/overview', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
       const stats = await storage.getVideoStats();
       res.json(stats);
     } catch (error) {
       console.error("Error fetching overview stats:", error);
-      res.status(500).json({ message: "Failed to fetch statistics" });
+      res.status(500).json({ message: "Failed to fetch overview statistics" });
     }
   });
 
   app.get('/api/admin/stats/location', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
       const stats = await storage.getVideosByLocation();
       res.json(stats);
     } catch (error) {
@@ -604,11 +486,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/stats/racism-type', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
       const stats = await storage.getVideosByRacismType();
       res.json(stats);
     } catch (error) {
@@ -619,11 +496,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/stats/age', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
       const stats = await storage.getVideosByAge();
       res.json(stats);
     } catch (error) {
@@ -634,11 +506,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/admin/stats/gender', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
       const stats = await storage.getVideosByGender();
       res.json(stats);
     } catch (error) {
@@ -650,11 +517,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Video Management Routes
   app.get('/api/admin/videos', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
       const { status, racismType, location, search } = req.query;
       const filters: any = {};
       
@@ -673,11 +535,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/admin/videos/:id/status', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
       const videoId = parseInt(req.params.id);
       const { status, rejectionReason } = req.body;
       
@@ -701,11 +558,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ADMIN: Upload vídeo aprovado para YouTube
   app.post('/api/admin/videos/:id/upload-youtube', isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const tokens = req.session.youtubeTokens;
       if (!tokens) {
         return res.status(400).json({ 
@@ -725,161 +577,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Apenas vídeos aprovados podem ser enviados ao YouTube" });
       }
 
-      if (video.youtubeId) {
-        return res.status(400).json({ message: "Vídeo já foi enviado ao YouTube" });
-      }
-
       if (!video.filePath || !fs.existsSync(video.filePath)) {
         return res.status(400).json({ message: "Arquivo de vídeo não encontrado" });
       }
 
-      try {
-        // Upload para YouTube
-        const uploadResult = await YouTubeService.uploadVideo(
-          video.filePath,
-          {
-            title: video.title || 'Testemunho sobre racismo',
-            description: `Testemunho compartilhado em reparacoeshistoricas.org\n\nTipo: ${video.racismType}\nLocalização: ${video.city}, ${video.state}`,
-            tags: ['racismo', 'testemunho', 'brasil', video.racismType],
-            privacyStatus: 'unlisted'
-          },
-          tokens.access_token!,
-          tokens.refresh_token
-        );
+      console.log(`Iniciando upload para YouTube: ${video.title}`);
 
-        // Atualizar vídeo no banco com informações do YouTube
-        const updatedVideo = await storage.updateVideoWithYoutube(videoId, {
-          youtubeId: uploadResult.videoId,
-          youtubeUrl: uploadResult.url
-        });
+      const uploadResult = await YouTubeService.uploadVideo(
+        tokens.access_token,
+        video.filePath,
+        video.title || 'Testemunho',
+        `Testemunho sobre experiências de racismo. Localização: ${video.city}, ${video.state}. Tipo: ${video.racismType}`,
+        ['testemunho', 'racismo', 'reparações históricas']
+      );
 
-        // Remover arquivo local após upload bem-sucedido
-        fs.unlinkSync(video.filePath);
+      const updatedVideo = await storage.updateVideoWithYoutube(videoId, {
+        youtubeId: uploadResult.videoId,
+        youtubeUrl: uploadResult.url
+      });
 
-        res.json({
-          message: 'Vídeo enviado ao YouTube com sucesso!',
-          video: updatedVideo,
-          youtubeUrl: uploadResult.url
-        });
-
-      } catch (uploadError: any) {
-        console.error('Erro no upload YouTube:', uploadError);
-        res.status(500).json({ 
-          message: `Erro no upload para YouTube: ${uploadError.message}` 
-        });
-      }
-
-    } catch (error) {
-      console.error("Error uploading to YouTube:", error);
-      res.status(500).json({ message: "Erro interno do servidor" });
-    }
-  });
-
-  app.get('/api/statistics/location', async (req, res) => {
-    try {
-      const stats = await storage.getVideosByLocation();
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching location statistics:", error);
-      res.status(500).json({ message: "Failed to fetch location statistics" });
-    }
-  });
-
-  app.get('/api/statistics/racism-type', async (req, res) => {
-    try {
-      const stats = await storage.getVideosByRacismType();
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching racism type statistics:", error);
-      res.status(500).json({ message: "Failed to fetch racism type statistics" });
-    }
-  });
-
-  app.get('/api/statistics/age', async (req, res) => {
-    try {
-      const stats = await storage.getVideosByAge();
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching age statistics:", error);
-      res.status(500).json({ message: "Failed to fetch age statistics" });
-    }
-  });
-
-  app.get('/api/statistics/gender', async (req, res) => {
-    try {
-      const stats = await storage.getVideosByGender();
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching gender statistics:", error);
-      res.status(500).json({ message: "Failed to fetch gender statistics" });
-    }
-  });
-
-  // Chapter access routes (for QR codes)
-  app.get('/capitulo/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
-    const chapter = await storage.getChapter(id);
-    if (!chapter) {
-      return res.status(404).json({ message: "Chapter not found" });
-    }
-    // Redirect to frontend chapter page
-    res.redirect(`/#/chapter/${id}`);
-  });
-
-  // 🆕 TROCAR CANAL YOUTUBE - Nova rota para configurar novo canal
-  app.post('/api/youtube/change-channel', isAuthenticated, async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (!user?.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      const { channelInput, channelName } = req.body;
-      
-      if (!channelInput) {
-        return res.status(400).json({ 
-          message: 'Channel ID, URL ou @username é obrigatório' 
-        });
-      }
-
-      let channelId = ChannelManager.extractChannelId(channelInput);
-      
-      // Se não conseguiu extrair, pode ser um @username
-      if (!channelId && channelInput.includes('@')) {
-        const searchResult = await ChannelManager.searchChannelByUsername(channelInput);
-        if (searchResult.found) {
-          channelId = searchResult.channelId;
-        }
-      }
-      
-      if (!channelId) {
-        return res.status(400).json({ 
-          message: 'Formato inválido. Use Channel ID (UCxxxxx), URL do canal ou @username'
-        });
-      }
-
-      // Atualizar canal
-      const result = await ChannelManager.updateChannel(channelId, channelName);
-      
-      if (!result.success) {
-        return res.status(400).json({ 
-          message: result.error || 'Erro ao atualizar canal'
-        });
-      }
-
-      // Sincronizar vídeos do novo canal
-      const syncResult = await ChannelManager.syncNewChannel(channelId);
+      fs.unlinkSync(video.filePath);
 
       res.json({
-        message: 'Canal atualizado com sucesso!',
-        channel: result.config,
-        channelInfo: result.channelInfo,
-        sync: syncResult
+        message: 'Vídeo enviado ao YouTube com sucesso!',
+        video: updatedVideo,
+        youtubeUrl: uploadResult.url
       });
 
     } catch (error: any) {
-      console.error('Erro ao trocar canal:', error);
-      res.status(500).json({ message: 'Erro interno: ' + error.message });
+      console.error('Erro no upload para YouTube:', error);
+      res.status(500).json({ 
+        message: 'Erro ao enviar vídeo para YouTube: ' + error.message 
+      });
     }
   });
 

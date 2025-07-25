@@ -18,13 +18,13 @@ export default function Admin() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isLoading && (!user || !user.isAdmin)) {
+    if (!isLoading && !user) {
       toast({
-        title: "Acesso negado",
-        description: "Você não tem permissão para acessar esta página",
+        title: "Login necessário",
+        description: "Você precisa fazer login para acessar o painel administrativo",
         variant: "destructive",
       });
-      window.location.href = "/";
+      window.location.href = "/api/login";
     }
   }, [user, isLoading, toast]);
 
@@ -39,7 +39,7 @@ export default function Admin() {
     );
   }
 
-  if (!user?.isAdmin) {
+  if (!user) {
     return null;
   }
 
