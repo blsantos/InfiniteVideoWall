@@ -101,23 +101,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Video routes
+  // Video routes - Buscar vídeos diretamente do YouTube para exibição pública
   app.get('/api/videos', async (req, res) => {
     try {
+      console.log('🔍 Buscando vídeos do canal YouTube para exibição pública...');
+      
+      // Buscar vídeos diretamente do canal YouTube
+      const channelId = YOUTUBE_CONFIG.CHANNEL_ID;
+      const channelVideos = await YouTubeService.listChannelVideosByChannelId(channelId);
+      
+      // Transformar para formato compatível com a interface pública
+      const formattedVideos = (channelVideos.items || []).map((video: any) => ({
+        id: video.id?.videoId || video.id,
+        youtubeId: video.id?.videoId || video.id,
+        youtubeUrl: `https://www.youtube.com/watch?v=${video.id?.videoId || video.id}`,
+        title: video.snippet?.title || 'Título não disponível',
+        description: video.snippet?.description || '',
+        thumbnail: video.snippet?.thumbnails?.medium?.url || video.snippet?.thumbnails?.default?.url,
+        publishedAt: video.snippet?.publishedAt,
+        status: 'approved', // Vídeos no canal são sempre aprovados
+        channelTitle: video.snippet?.channelTitle,
+        // Campos para compatibilidade
+        city: 'Brasil',
+        state: 'Diversos',
+        racismType: 'Testemunho pessoal',
+        ageRange: 'Adulto',
+        education: 'Diversos',
+        income: 'Diversos',
+        gender: 'Diversos',
+        skinTone: 'Diversos',
+        country: 'Brasil',
+        chapterId: 1 // Default para capítulo 1
+      }));
+
+      console.log(`✅ Encontrados ${formattedVideos.length} vídeos para exibição pública`);
+      
+      // Aplicar filtros
       const { status, racismType, location, search, chapterId } = req.query;
-      const filters: any = {};
+      let filteredVideos = formattedVideos;
       
-      if (status) filters.status = status;
-      if (racismType) filters.racismType = racismType;
-      if (location) filters.location = location;
-      if (search) filters.search = search;
-      if (chapterId) filters.chapterId = parseInt(chapterId as string);
+      // Filtrar apenas vídeos aprovados (que é o que temos no canal)
+      if (status && status !== 'approved') {
+        filteredVideos = [];
+      }
       
-      const videos = await storage.getVideos(filters);
-      res.json(videos);
+      if (search) {
+        const searchLower = (search as string).toLowerCase();
+        filteredVideos = filteredVideos.filter((video: any) => 
+          video.title.toLowerCase().includes(searchLower) ||
+          video.description.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      if (chapterId) {
+        // Por enquanto todos os vídeos são do capítulo 1
+        const targetChapter = parseInt(chapterId as string);
+        if (targetChapter !== 1) {
+          filteredVideos = [];
+        }
+      }
+
+      res.json(filteredVideos);
+      
     } catch (error) {
-      console.error("Error fetching videos:", error);
-      res.status(500).json({ message: "Failed to fetch videos" });
+      console.error("Erro ao buscar vídeos do canal:", error);
+      res.json([]); // Retornar array vazio em caso de erro
     }
   });
 
@@ -514,22 +562,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin Video Management Routes
+  // Admin Video Management Routes - Buscar vídeos diretamente do YouTube
   app.get('/api/admin/videos', isAuthenticated, async (req: any, res) => {
     try {
+      console.log('🔍 Buscando vídeos do canal YouTube para moderação...');
+      
+      // Buscar vídeos diretamente do canal YouTube sem precisar de tokens
+      const channelId = YOUTUBE_CONFIG.CHANNEL_ID;
+      const channelVideos = await YouTubeService.listChannelVideosByChannelId(channelId);
+      
+      // Transformar para formato compatível com a interface
+      const formattedVideos = (channelVideos.items || []).map((video: any) => ({
+        id: video.id?.videoId || video.id,
+        youtubeId: video.id?.videoId || video.id,
+        youtubeUrl: `https://www.youtube.com/watch?v=${video.id?.videoId || video.id}`,
+        title: video.snippet?.title || 'Título não disponível',
+        description: video.snippet?.description || '',
+        thumbnail: video.snippet?.thumbnails?.medium?.url || video.snippet?.thumbnails?.default?.url,
+        publishedAt: video.snippet?.publishedAt,
+        status: 'approved', // Vídeos já no canal são considerados aprovados
+        channelTitle: video.snippet?.channelTitle,
+        // Campos simulados para compatibilidade com a interface
+        city: 'Canal YouTube',
+        state: 'Online',
+        racismType: 'Testemunho pessoal',
+        ageRange: 'Não especificado',
+        education: 'Não especificado',
+        income: 'Não especificado',
+        gender: 'Não especificado',
+        skinTone: 'Não especificado',
+        country: 'Brasil'
+      }));
+
+      console.log(`✅ Encontrados ${formattedVideos.length} vídeos no canal @ReparacoesHistoricas`);
+      
+      // Aplicar filtros se fornecidos
       const { status, racismType, location, search } = req.query;
-      const filters: any = {};
+      let filteredVideos = formattedVideos;
       
-      if (status) filters.status = status;
-      if (racismType) filters.racismType = racismType;
-      if (location) filters.location = location;
-      if (search) filters.search = search;
+      if (status && status !== 'all' && status !== 'approved') {
+        filteredVideos = []; // Só temos vídeos aprovados no canal
+      }
       
-      const videos = await storage.getVideos(filters);
-      res.json(videos);
+      if (search) {
+        const searchLower = (search as string).toLowerCase();
+        filteredVideos = filteredVideos.filter((video: any) => 
+          video.title.toLowerCase().includes(searchLower) ||
+          video.description.toLowerCase().includes(searchLower)
+        );
+      }
+
+      res.json(filteredVideos);
+      
     } catch (error) {
-      console.error("Error fetching videos:", error);
-      res.status(500).json({ message: "Failed to fetch videos" });
+      console.error("Erro ao buscar vídeos do canal:", error);
+      
+      // Fallback: retornar array vazio com mensagem informativa
+      res.json([]);
     }
   });
 

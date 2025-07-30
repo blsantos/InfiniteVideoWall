@@ -264,12 +264,22 @@ export default function VideoModeration() {
                 <div className="flex-shrink-0">
                   <div className="w-36 h-20 bg-gray-100 rounded-lg overflow-hidden relative">
                     <img
-                      src={`https://picsum.photos/144/80?random=${video.id}`}
+                      src={video.thumbnail || `https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`}
                       alt={video.title || "Vídeo"}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`;
+                      }}
                     />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                      <Eye className="h-6 w-6 text-white" />
+                      <a 
+                        href={video.youtubeUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-white hover:text-red-300"
+                      >
+                        <Eye className="h-6 w-6" />
+                      </a>
                     </div>
                   </div>
                 </div>
