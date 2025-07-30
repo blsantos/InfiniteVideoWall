@@ -301,7 +301,7 @@ export default function VideoModeration() {
                         {video.authorName && <span>Por: {video.authorName}</span>}
                       </div>
                       <p className="text-xs text-gray-400 mt-2">
-                        Enviado em {format(new Date(video.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        Publicado em {video.publishedAt ? format(new Date(video.publishedAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : 'Data não disponível'}
                       </p>
                     </div>
 

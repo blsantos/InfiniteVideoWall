@@ -167,6 +167,13 @@ Changelog:
   - Campo filePath adicionado ao banco de dados
   - Interface de moderação com botão "Enviar ao YouTube"
   - Remoção da complexidade OAuth para usuários regulares
+- July 30, 2025. Arquitetura Redesenhada - Dados Diretos do YouTube:
+  - Sistema eliminou dependência da base de dados como intermediário
+  - Endpoints /api/videos e /api/admin/videos buscam direto do canal YouTube
+  - Moderação mostra conteúdo real do canal @ReparacoesHistoricas
+  - Thumbnails autênticas e dados reais (títulos, descrições, datas)
+  - 3 vídeos ativos sendo exibidos diretamente da API do YouTube
+  - Correção de erro de data usando publishedAt ao invés de createdAt
 
 ## Status Atual
 
