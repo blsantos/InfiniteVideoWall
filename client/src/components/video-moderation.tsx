@@ -386,13 +386,38 @@ export default function VideoModeration() {
           </Card>
         ))}
 
-        {filteredVideos && filteredVideos.length === 0 && (
+        {!videos || videos.length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center space-y-4">
+              <div className="text-gray-400">
+                <Youtube className="h-12 w-12 mx-auto mb-4" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Painel de Moderação</h3>
+                <p className="text-gray-500 mb-4">
+                  {error && isUnauthorizedError(error as Error) 
+                    ? "Fazendo login... Aguarde."
+                    : "Nenhum vídeo para moderar no momento."
+                  }
+                </p>
+                <div className="text-sm text-gray-400">
+                  <p>• Vídeos pendentes aparecerão aqui para aprovação</p>
+                  <p>• Vídeos aprovados podem ser enviados ao YouTube</p>
+                  <p>• Sistema mostra apenas dados reais do canal</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : filteredVideos && filteredVideos.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <p className="text-gray-500">Nenhum vídeo encontrado com os filtros aplicados.</p>
+              <p className="text-xs text-gray-400 mt-2">
+                Total de vídeos no sistema: {videos?.length || 0}
+              </p>
             </CardContent>
           </Card>
-        )}
+        ) : null}
       </div>
     </div>
   );
