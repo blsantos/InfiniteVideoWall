@@ -65,9 +65,9 @@ export default function Admin() {
                 <a href="/api/logout">Sair</a>
               </Button>
               <div className="w-8 h-8 bg-gray-300 rounded-full overflow-hidden">
-                {user?.profileImageUrl ? (
+                {(user as any)?.profileImageUrl ? (
                   <img
-                    src={user.profileImageUrl}
+                    src={(user as any).profileImageUrl}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
@@ -89,8 +89,9 @@ export default function Admin() {
           </div>
           
           <Tabs defaultValue="moderation" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="moderation">Moderação</TabsTrigger>
+              <TabsTrigger value="qrcodes">QR Codes</TabsTrigger>
               <TabsTrigger value="playlists">Playlists</TabsTrigger>
               <TabsTrigger value="youtube">YouTube</TabsTrigger>
               <TabsTrigger value="channel">🔧 Canal</TabsTrigger>
@@ -101,6 +102,12 @@ export default function Admin() {
             <TabsContent value="moderation" className="space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
                 <VideoModeration />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="qrcodes" className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <QRManagement />
               </div>
             </TabsContent>
 
