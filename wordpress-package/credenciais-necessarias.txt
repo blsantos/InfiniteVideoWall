@@ -1,0 +1,32 @@
+CREDENCIAIS NECESSÁRIAS PARA FUNCIONAMENTO COMPLETO
+
+1. POSTGRESQL (Hostinger cPanel)
+   - Criar nova database PostgreSQL
+   - Anotar: host, database, user, password
+   - Usar no DATABASE_URL do .env
+
+2. YOUTUBE API (Google Cloud Console)
+   - Projeto: console.cloud.google.com
+   - API: YouTube Data API v3
+   - Credentials: OAuth 2.0 Client ID
+   - Callback URL: https://reparacoeshistoricas.org/api/youtube/callback
+   
+   Anotar:
+   - YOUTUBE_API_KEY (API Key)
+   - YOUTUBE_CLIENT_ID (OAuth Client)
+   - YOUTUBE_CLIENT_SECRET (OAuth Secret)
+
+3. SESSION_SECRET
+   - Gerar uma chave forte aleatória
+   - Exemplo: openssl rand -hex 32
+   - Ou usar: https://randomkeygen.com/
+
+EXEMPLO .env FINAL:
+DATABASE_URL=postgresql://user123:pass456@localhost:5432/videos_db
+YOUTUBE_API_KEY=AIzaSyB1234567890abcdefghijklmnop
+YOUTUBE_CLIENT_ID=123456789012-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com
+YOUTUBE_CLIENT_SECRET=GOCSPX-1234567890abcdefghijklmnop
+SESSION_SECRET=a1b2c3d4e5f6789012345678901234567890abcdef1234567890
+NODE_ENV=production
+PORT=3000
+REPLIT_DOMAINS=reparacoeshistoricas.org
