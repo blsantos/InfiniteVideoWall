@@ -1,0 +1,115 @@
+<!-- EXEMPLO: Como integrar o subdomínio no WordPress principal -->
+
+<!-- OPÇÃO 1: Link direto (Recomendado) -->
+<div class="muro-videos-section">
+    <h2>Testemunhos Contra o Racismo</h2>
+    <p>Veja relatos reais de pessoas que sofreram discriminação racial.</p>
+    
+    <a href="https://muro.reparacoeshistoricas.org" 
+       class="btn btn-primary btn-lg" 
+       target="_blank"
+       style="background: #FF6B35; border: none; padding: 15px 30px; font-weight: bold;">
+        🎬 Acessar Muro de Vídeos
+    </a>
+    
+    <p><small>Canal: @ReparacoesHistoricas no YouTube</small></p>
+</div>
+
+<!-- OPÇÃO 2: Iframe incorporado -->
+<div class="muro-videos-embed">
+    <h2>Muro Infinito de Vídeos</h2>
+    <div style="position: relative; width: 100%; height: 700px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <iframe 
+            src="https://muro.reparacoeshistoricas.org" 
+            width="100%" 
+            height="100%" 
+            frameborder="0"
+            allowfullscreen
+            style="border: none;">
+        </iframe>
+    </div>
+    <p style="margin-top: 10px; font-size: 14px; color: #666;">
+        Dados diretos do canal YouTube @ReparacoesHistoricas
+    </p>
+</div>
+
+<!-- OPÇÃO 3: Card com preview -->
+<div class="muro-preview-card" style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="flex: 1;">
+            <h3 style="color: #FF6B35; margin: 0 0 10px 0;">🎬 Muro Infinito de Vídeos</h3>
+            <p style="margin: 0 0 15px 0;">
+                Plataforma dedicada para compartilhamento de testemunhos sobre experiências de racismo. 
+                Vídeos reais do canal @ReparacoesHistoricas.
+            </p>
+            <ul style="margin: 0 0 15px 0; padding-left: 20px;">
+                <li>Interface moderna e responsiva</li>
+                <li>Upload direto de testemunhos</li>
+                <li>Moderação de conteúdo</li>
+                <li>QR codes para capítulos</li>
+            </ul>
+            <a href="https://muro.reparacoeshistoricas.org" 
+               target="_blank" 
+               style="background: #FF6B35; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                Acessar Plataforma →
+            </a>
+        </div>
+        <div style="flex: 0 0 200px;">
+            <div style="width: 200px; height: 150px; background: linear-gradient(135deg, #FF6B35, #FFA726); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
+                🎬
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- OPÇÃO 4: Menu de navegação -->
+<style>
+.main-navigation {
+    /* Seus estilos existentes */
+}
+.main-navigation .menu-item-muro-videos a {
+    background: linear-gradient(90deg, #FF6B35, #FFA726);
+    color: white !important;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+</style>
+
+<!-- No menu WordPress adicionar: -->
+<!-- URL: https://muro.reparacoeshistoricas.org -->
+<!-- Texto: 🎬 Muro de Vídeos -->
+<!-- CSS Class: menu-item-muro-videos -->
+
+<!-- OPÇÃO 5: Widget sidebar -->
+<div class="widget muro-videos-widget">
+    <h4 class="widget-title">Testemunhos sobre Racismo</h4>
+    <div style="text-align: center;">
+        <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #FF6B35, #FFA726); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; margin-bottom: 15px;">
+            🎬
+        </div>
+        <p style="font-size: 14px; margin-bottom: 15px;">
+            Veja relatos reais de pessoas que enfrentaram discriminação racial.
+        </p>
+        <a href="https://muro.reparacoeshistoricas.org" 
+           target="_blank"
+           style="display: block; background: #FF6B35; color: white; padding: 12px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+            Acessar Muro de Vídeos
+        </a>
+    </div>
+</div>
+
+<!-- OPÇÃO 6: Call-to-action no rodapé -->
+<div class="footer-cta" style="background: #FF6B35; color: white; padding: 40px 0; text-align: center;">
+    <div class="container">
+        <h3 style="color: white; margin-bottom: 15px;">Sua Voz Importa</h3>
+        <p style="font-size: 18px; margin-bottom: 25px;">
+            Compartilhe sua experiência e ajude a construir um futuro sem racismo.
+        </p>
+        <a href="https://muro.reparacoeshistoricas.org" 
+           target="_blank"
+           style="background: white; color: #FF6B35; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+            🎬 Contribuir com Testemunho
+        </a>
+    </div>
+</div>
