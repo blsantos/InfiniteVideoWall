@@ -192,15 +192,15 @@ Changelog:
 - Documentação técnica completa
 - Arquivos de integração prontos
 
-### Pronto para Deploy
+### Pronto para Deploy - VPS Configurado
 - Sistema totalmente funcional
-- APIs testadas e operacionais
+- APIs testadas e operacionais  
 - Integração YouTube API implementada
 - **NOVO:** Upload direto para usuários + YouTube apenas para admin
-- Autorização OAuth2 configurada para teste e produção
-- Documentação de integração completa
-- Códigos WordPress prontos para uso
-- Guias de deployment para Hostinger
+- **VPS TARGET:** muro.reparacoeshistoricas.org (46.202.175.252)
+- DNS A record configurado: muro → 46.202.175.252
+- Scripts de deploy VPS automatizados criados
+- Configuração Nginx + SSL automática preparada
 
 ### Configuração YouTube OAuth - CONFIGURADO PARA ADMIN
 **NOVO FLUXO IMPLEMENTADO:**

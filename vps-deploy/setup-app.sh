@@ -5,6 +5,7 @@ echo "⚙️  Configurando aplicação Muro de Vídeos"
 echo "=========================================="
 
 DOMAIN="muro.reparacoeshistoricas.org"
+VPS_IP="46.202.175.252"
 APP_DIR="/var/www/$DOMAIN"
 NODE_USER="nodeapp"
 
@@ -97,6 +98,7 @@ certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email admin@reparacoe
 
 echo "✅ Aplicação configurada com sucesso!"
 echo ""
+echo "🌐 VPS: $VPS_IP"
 echo "🌐 URLs disponíveis:"
 echo "   - Site: https://$DOMAIN"
 echo "   - API: https://$DOMAIN/api/videos"
