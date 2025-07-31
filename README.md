@@ -124,7 +124,35 @@ O sistema busca vídeos diretamente deste canal, sem armazenamento local interme
 <p>Você também pode contribuir com seu testemunho através do botão de upload.</p>
 ```
 
-## 🌐 Deploy em Produção (reparacoeshistoricas.org)
+## 🌐 Deploy em Produção
+
+### Opção 1: VPS Subdomínio (Recomendado)
+**URL:** muro.reparacoeshistoricas.org (46.202.175.252)
+
+#### Vantagens VPS:
+- Performance superior (Node.js direto)
+- URL profissional e memorável
+- Controle total sobre configuração
+- SSL automático com Let's Encrypt
+- Manutenção independente do WordPress
+
+#### Processo VPS:
+```bash
+# 1. Conectar ao VPS
+ssh root@46.202.175.252
+
+# 2. Executar script de instalação
+bash vps-deploy/install-vps.sh
+
+# 3. Upload da aplicação
+scp -r . root@46.202.175.252:/var/www/muro.reparacoeshistoricas.org/
+
+# 4. Configurar e iniciar
+cd /var/www/muro.reparacoeshistoricas.org
+bash vps-deploy/setup-app.sh
+```
+
+### Opção 2: WordPress Integration (Hostinger)
 
 ### 1. Preparação do Servidor Hostinger
 
@@ -179,11 +207,17 @@ RewriteRule . /index.php [L]
 
 ### 6. URLs Finais
 
+**VPS (Recomendado):**
+- **Site:** https://muro.reparacoeshistoricas.org
+- **API:** https://muro.reparacoeshistoricas.org/api/videos
+- **Admin:** https://muro.reparacoeshistoricas.org/admin
+- **Upload:** https://muro.reparacoeshistoricas.org/upload
+
+**WordPress Integration:**
 - **Site:** https://reparacoeshistoricas.org
 - **API:** https://reparacoeshistoricas.org/api/videos
 - **Admin:** https://reparacoeshistoricas.org/admin
 - **Upload:** https://reparacoeshistoricas.org/upload
-- **Capítulos:** https://reparacoeshistoricas.org/chapter/1
 
 ## 📊 Arquitetura de Dados
 

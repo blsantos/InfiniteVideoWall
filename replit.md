@@ -174,6 +174,13 @@ Changelog:
   - Thumbnails autênticas e dados reais (títulos, descrições, datas)
   - 3 vídeos ativos sendo exibidos diretamente da API do YouTube
   - Correção de erro de data usando publishedAt ao invés de createdAt
+- July 31, 2025. Deploy VPS Configurado - muro.reparacoeshistoricas.org:
+  - DNS A record configurado: muro → 46.202.175.252
+  - Scripts de deploy VPS automatizados criados
+  - Configuração Nginx + SSL automática preparada
+  - Plugin WordPress completo como alternativa
+  - Sistema pronto para produção em subdomínio dedicado
+  - Vantagens VPS: performance superior, controle total, URLs profissionais
 
 ## Status Atual
 
@@ -208,8 +215,9 @@ Changelog:
 - Administradores: OAuth apenas para envio ao YouTube de vídeos aprovados
 
 **URLs de Redirecionamento necessárias no Google Console:**
-- Atual: https://883149f1-1c75-46d3-8a00-b3d17d4dda1d-00-zh6zir2txvr9.worf.replit.dev/api/youtube/callback
-- Produção: https://reparacoeshistoricas.org/api/youtube/callback
+- Desenvolvimento: https://883149f1-1c75-46d3-8a00-b3d17d4dda1d-00-zh6zir2txvr9.worf.replit.dev/api/youtube/callback
+- **Produção VPS:** https://muro.reparacoeshistoricas.org/api/youtube/callback
+- WordPress: https://reparacoeshistoricas.org/api/youtube/callback
 - Local: http://localhost:5000/api/youtube/callback
 
 **Canal YouTube:**
